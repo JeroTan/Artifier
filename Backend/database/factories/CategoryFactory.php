@@ -22,8 +22,11 @@ class CategoryFactory extends Factory
     {
         //$categories = ['Genshin Impact', 'Project Sekai', 'Honkai Star Rail', 'Honkai Impact 3rd', 'Others'];
         $faked = $this->faker;
+        $rgb = rand(0,255).", ".rand(0,255).", ".rand(0,255);
+        $color = "rgb($rgb)";
         return [
             "name"=>$faked->word(),
+            "color"=>$color,
         ];
     }
 }
