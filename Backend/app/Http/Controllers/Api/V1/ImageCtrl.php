@@ -21,10 +21,55 @@ class ImageCtrl extends Controller
      */
     public function index(Request $request)
     {
-        $opt = new FilterImage;
-        $opt_filter = $opt->transFilter($request);
+        $data = new Image;
 
-        return ImageRes::collection(Image::all());
+
+        //-->Filterers
+        $opt = new FilterImage;
+        //Search Filter
+        $opt_filter = $opt->transSearch($request);
+        if($opt_filter){
+            $data = $data->where(function($query) use($opt_filter) {
+                foreach($opt_filter as $val){
+                    $query = $query->orWhereRaw($val);
+                }
+            });
+        }
+
+        //Normal Filter
+        $opt_filter = $opt->transFilter($request);
+        if($opt_filter)
+            $data = $data->where($opt_filter);
+
+        //Between Filter
+        $opt_filter = $opt->transBetween($request);
+        if($opt_filter){
+            foreach($opt_filter as $column => $betweenValue){
+                $data = $data->whereBetween($column, $betweenValue);
+            }
+        }
+
+        //Match filter
+        $opt_filter = $opt->transMatch($request);
+        if($opt_filter){
+            foreach($opt_filter as $column => $matchers){
+                $data = $data->whereIn($column, $matchers);
+            }
+        }
+
+        //Sort Filter
+        $opt_filter = $opt->transSort($request);
+        if($opt_filter){
+            foreach($opt_filter as $column => $sortValue){
+                $data = $data->orderBy($column, $sortValue);
+            }
+        }
+        //<--Filterers
+
+
+        $data = $data->get();
+
+        return ImageRes::collection($data);
     }
 
     /**
