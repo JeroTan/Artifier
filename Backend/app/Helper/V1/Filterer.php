@@ -148,4 +148,14 @@ class Filterer{
         }
         return $data;
     }
+
+    public function transAll(Request $request, $queryData){
+        //Search
+
+        //Normal Filter
+        //Between
+        //Match
+        //Sort
+        //Return Data;
+    }
 }

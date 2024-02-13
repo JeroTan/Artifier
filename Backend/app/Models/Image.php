@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Carbon\Traits\Timestamp;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -15,6 +16,7 @@ class Image extends Model
     // protected $keyType = ['id','string'];
     // public $incrementing = false;
     //public $timestamps = false;
+
 
     //Relationships
     public function user(){

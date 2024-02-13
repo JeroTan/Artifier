@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api\V1;
 
+use App\Helper\V1\FFQuery;
 use App\Helper\V1\FilterImage;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\V1\ImageRes;
@@ -26,46 +27,9 @@ class ImageCtrl extends Controller
 
         //-->Filterers
         $opt = new FilterImage;
-        //Search Filter
-        $opt_filter = $opt->transSearch($request);
-        if($opt_filter){
-            $data = $data->where(function($query) use($opt_filter) {
-                foreach($opt_filter as $val){
-                    $query = $query->orWhereRaw($val);
-                }
-            });
-        }
-
-        //Normal Filter
-        $opt_filter = $opt->transFilter($request);
-        if($opt_filter)
-            $data = $data->where($opt_filter);
-
-        //Between Filter
-        $opt_filter = $opt->transBetween($request);
-        if($opt_filter){
-            foreach($opt_filter as $column => $betweenValue){
-                $data = $data->whereBetween($column, $betweenValue);
-            }
-        }
-
-        //Match filter
-        $opt_filter = $opt->transMatch($request);
-        if($opt_filter){
-            foreach($opt_filter as $column => $matchers){
-                $data = $data->whereIn($column, $matchers);
-            }
-        }
-
-        //Sort Filter
-        $opt_filter = $opt->transSort($request);
-        if($opt_filter){
-            foreach($opt_filter as $column => $sortValue){
-                $data = $data->orderBy($column, $sortValue);
-            }
-        }
+        $ffq = new FFQuery;
+        $data = $ffq->init($opt, $data, $request)->doAll()->getQuery();
         //<--Filterers
-
 
         $data = $data->get();
 
