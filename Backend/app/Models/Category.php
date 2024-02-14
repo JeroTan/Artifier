@@ -15,6 +15,11 @@ class Category extends Model
     // public $incrementing = false;
     public $timestamps = false;
 
+    protected $fillable = [
+        "name",
+        "color",
+    ];
+
     //Relationships
     public function categoryPath(){
         return $this->hasMany(CategoryPath::class);

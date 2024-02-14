@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Api\V1;
 use App\Helper\V1\FFQuery;
 use App\Helper\V1\FilterImage;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\V1\ImageAddReq;
+use App\Http\Requests\V1\ImageUpdReq;
 use App\Http\Resources\V1\ImageRes;
 use App\Models\Image;
 use Illuminate\Http\Request;
@@ -33,23 +35,24 @@ class ImageCtrl extends Controller
 
         $data = $data->get();
 
+        return $request->method();
         return ImageRes::collection($data);
     }
 
     /**
      * Show the form for creating a new resource.
      */
-    public function create()
+    public function create(Request $reuqest)
     {
-        //
+
     }
 
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(ImageAddReq $request)
     {
-        //
+        return new ImageRes( Image::create($request->all()) );
     }
 
     /**
@@ -71,9 +74,11 @@ class ImageCtrl extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(ImageUpdReq $request, string $id)
     {
-        //
+        $image = image::find($id);
+
+        return $image->update($request->all());
     }
 
     /**

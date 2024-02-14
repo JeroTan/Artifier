@@ -15,6 +15,11 @@ class CategoryPath extends Model
     // public $incrementing = false;
     public $timestamps = false;
 
+    protected $fillable = [
+        "category_id",
+        "category_path_id",
+    ];
+
     //Relationship
     public function image(){
         return $this->hasMany(Image::class);

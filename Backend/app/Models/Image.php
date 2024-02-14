@@ -17,6 +17,13 @@ class Image extends Model
     // public $incrementing = false;
     //public $timestamps = false;
 
+    protected $fillable = [
+        "user_id",
+        "category_path_id",
+        "title",
+        "description",
+        "image",
+    ];
 
     //Relationships
     public function user(){
