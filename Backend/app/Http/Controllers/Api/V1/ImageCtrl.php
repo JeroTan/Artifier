@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\V1;
 use App\Helper\V1\FFQuery;
 use App\Helper\V1\FilterImage;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\V1\ImageAddMultiReq;
 use App\Http\Requests\V1\ImageAddReq;
 use App\Http\Requests\V1\ImageUpdReq;
 use App\Http\Resources\V1\ImageRes;
@@ -35,7 +36,6 @@ class ImageCtrl extends Controller
 
         $data = $data->get();
 
-        return $request->method();
         return ImageRes::collection($data);
     }
 
@@ -53,6 +53,18 @@ class ImageCtrl extends Controller
     public function store(ImageAddReq $request)
     {
         return new ImageRes( Image::create($request->all()) );
+    }
+    public function storeMulti(ImageAddMultiReq $request){
+        $reviseData = collect($request->all())->map(function($val){
+            return array_filter($val, function($key){
+                return match($key){
+                    'userId'=>false,
+                    'categoryPathId'=>false,
+                    default=>true
+                };
+            }, ARRAY_FILTER_USE_KEY);
+        })->toArray();
+        Image::insert($reviseData);
     }
 
     /**
@@ -76,7 +88,8 @@ class ImageCtrl extends Controller
      */
     public function update(ImageUpdReq $request, string $id)
     {
-        $image = image::find($id);
+
+        $image = Image::find($id);
 
         return $image->update($request->all());
     }

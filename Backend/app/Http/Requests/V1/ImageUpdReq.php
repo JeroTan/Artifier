@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\V1;
 
+use App\Helper\V1\KeyConverter;
 use Illuminate\Foundation\Http\FormRequest;
 
 class ImageUpdReq extends FormRequest
@@ -21,6 +22,7 @@ class ImageUpdReq extends FormRequest
      */
     public function rules(): array
     {
+
         $methodUsed = $this->method();
         $rules = [
             'userId'=>["required"],
@@ -29,6 +31,7 @@ class ImageUpdReq extends FormRequest
             'description'=>["required"],
             'image'=>["required"],
         ];
+
 
         if($methodUsed == 'PATCH'){
             foreach($rules as $key => $val){
@@ -41,21 +44,21 @@ class ImageUpdReq extends FormRequest
 
     protected function prepareForValidation()
     {
-        $methodUsed = $this->method();
-        $merger = [];
 
-        if($methodUsed == 'PATCH'){
-            if($this?->userId){
-                $merger['user_id']=$this->userId;
+        $methodUsed = $this->method();
+        $merger = [
+            'user_id'=>false,
+            'category_path_id'=>false,
+        ];
+        $kChange = new KeyConverter;
+
+        foreach($merger as $key => $val){
+            if( $methodUsed == 'PATCH' || $this->input( $kChange->fromSnakeCase($key)->toCamelCase() ) != null ){
+                $queryKey =  $kChange->fromSnakeCase($key)->toCamelCase();
+                $merger[$key] = $this->$queryKey ;
+            }else{
+                unset($merger[$key]);
             }
-            if($this?->categoryPathId){
-                $merger['category_path_id']=$this->categoryPathId;
-            }
-        }else{
-            $merger = [
-                'user_id'=>$this->userId,
-                'category_path_id'=>$this->categoryPathId,
-            ];
         }
 
 

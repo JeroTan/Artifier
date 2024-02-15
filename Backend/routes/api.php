@@ -22,4 +22,5 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 Route::prefix('v1')->namespace("App\Http\Controllers\Api\V1")->group(function(){
     // Route::get('image', ImageCtrl::class);
     Route::apiResource('image', ImageCtrl::class);
+    Route::post('image/multi', [ImageCtrl::class, 'storeMulti']);
 });
