@@ -32,7 +32,7 @@ module.exports = {
                 }] 
             },
             {
-                test: /\.(png|jpg|gif|ico)$/i,          // For files
+                test: /\.(png|jpg|gif|ico|svg)$/i,          // For files
                 exclude: /(node_modules|bower_components|dist)/,
                 use: [
                     {

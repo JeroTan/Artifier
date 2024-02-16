@@ -3,12 +3,14 @@ import {
     useEffect, useState, useCallback, useMemo, useRef, useReducer, } from "react";
 
 // Utilities
+import Pageplate from "../Utilities/Pageplate";
+
 
 export default ()=>{
     //Check if Login First
 
 
-    return <>
-        <h1>Hi Saki</h1>
-    </>
+    return <Pageplate>
+        Hi Sekai
+    </Pageplate>
 }

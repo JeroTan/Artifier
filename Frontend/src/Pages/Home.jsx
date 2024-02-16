@@ -10,7 +10,7 @@ export default ()=>{
 
     //Check if Login First
     useEffect(()=>{
-        //navigation("/Login");
+        navigation("/Login");
     });
 
 

@@ -1,1 +1,34 @@
 @import "~bootstrap/scss/bootstrap";
+
+.my-fill-primary{
+    fill: $primary;
+}
+.my-fill-secondary{
+    fill: $secondary;
+}
+.my-fill-success{
+    fill: $success;
+}
+.my-fill-info{
+    fill: $info;
+}
+.my-fill-warning{
+    fill: $warning;
+}
+.my-fill-danger{
+    fill: $danger;
+}
+.my-fill-light{
+    fill: $light;
+}
+.my-fill-dark{
+    fill: $dark;
+}
+
+.my-w-5{
+    width: 24px!important;
+}
+
+.my-h-5{
+    height: 24px!important;
+}
