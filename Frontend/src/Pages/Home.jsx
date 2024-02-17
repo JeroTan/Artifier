@@ -4,17 +4,11 @@ import { useNavigate } from "react-router-dom";
 
 // Utilities
 
+// Components
+import Pageplate from "../Utilities/Pageplate";
+
 export default ()=>{
-    //Definer
-    const navigation = useNavigate();
-
-    //Check if Login First
-    useEffect(()=>{
-        navigation("/Login");
-    });
-
-
-    return <>
-        <h1>Hi sekai</h1>
-    </>
+    return <Pageplate>
+        1 2 
+    </Pageplate>
 }

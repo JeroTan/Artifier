@@ -1,11 +1,12 @@
 // HOOKS
 import { Link } from "react-router-dom";
-import { useMemo } from "react";
+import { useMemo, useContext, useCallback } from "react";
 
 //Components
 import logo from "../Images/logo.svg";
 import { randomizer } from "../Helper/Math";
 import Icon from "./Icon";
+import { Gbl_settings } from "../GlobalSettings";
 
 
 export default()=>{
@@ -22,6 +23,11 @@ export default()=>{
             "Tanjiro Kamado",
         ];
         return text[randomizer(0, text.length)] + ". . .";
+    }, []);
+    //>Global
+    const [Broadcast, Upcast] = useContext(Gbl_settings);
+    const changeTheme = useCallback(()=>{
+        Upcast({run: 'change-theme'});
     }, []);
 
 
@@ -42,31 +48,24 @@ export default()=>{
 
                 {/* The content of navbar that will be responsive */}
                 <div className="collapse navbar-collapse" id="navLinks">
-                    <form className="d-flex me-auto" role="search">
+                    <form className="d-flex me-auto mt-lg-0 mt-4" role="search">
                         <input className="form-control me-2" type="search" placeholder={RandSearchPlaceholder} aria-label="Search" />
                         <button className="btn btn-primary d-flex" type="submit"><Icon name="search" inClass={" my-fill-light"} outClass={"my-w-5 my-h-5"} /></button>
                     </form>
+                    
                     <ul className="navbar-nav mb-2 mb-lg-0">
+
+                        <li className="nav-item nav-link">
+                            <div className="form-check form-switch ">
+                                <input className="form-check-input" type="checkbox" role="switch" id="toggleThemeMode" checked={Broadcast.theme == 'dark'} onChange={changeTheme}/>
+                                <label className="form-check-label" htmlFor="toggleThemeMode">{Broadcast.theme == 'dark'?"Dark":"Light"} Mode</label>
+                            </div>
+                        </li>
+                        
                         <li className="nav-item">
-                            <a className="nav-link active" aria-current="page" href="#">Home</a>
+                            <a className="nav-link" href="#">Settings</a>
                         </li>
-                        <li className="nav-item">
-                            <a className="nav-link" href="#">Link</a>
-                        </li>
-                        <li className="nav-item dropdown">
-                        <a className="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            Dropdown
-                        </a>
-                        <ul className="dropdown-menu">
-                            <li><a className="dropdown-item" href="#">Action</a></li>
-                            <li><a className="dropdown-item" href="#">Another action</a></li>
-                            <li><hr className="dropdown-divider" /></li>
-                            <li><a className="dropdown-item" href="#">Something else here</a></li>
-                        </ul>
-                        </li>
-                        <li className="nav-item">
-                        <a className="nav-link disabled" aria-disabled="true">Disabled</a>
-                        </li>
+                        
                     </ul>
                     
                 </div>
