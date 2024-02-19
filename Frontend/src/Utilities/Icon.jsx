@@ -102,10 +102,10 @@ Temporary Holder
     const svgFrame = useCallback((frame, content)=>{
         switch(frame){
             case 0:
-                return <><svg xmlns="http://www.w3.org/2000/svg" width='100%' height='100%' viewBox="0 0 24 24"><path className={InClass} style={InStyle} d={content}></path></svg></>
+                return <><svg xmlns="http://www.w3.org/2000/svg" width='100%' height='100%' viewBox="0 0 24 24"><path className={`${InClass} my-svg`} style={InStyle} d={content}></path></svg></>
             break;
             case 1:
-                return <><svg xmlns="http://www.w3.org/2000/svg" width='100%' height='100%' viewBox={content.viewBox}><path className={InClass} style={InStyle} d={content.d}></path></svg></>
+                return <><svg xmlns="http://www.w3.org/2000/svg" width='100%' height='100%' viewBox={content.viewBox}><path className={`${InClass} my-svg`} style={InStyle} d={content.d}></path></svg></>
             break;
             case 2:
                 return <><svg xmlns="http://www.w3.org/2000/svg" width='100%' height='100%' viewBox={content.viewBox}>{content.d}</svg></>
@@ -116,7 +116,7 @@ Temporary Holder
                 return <></>
             break;
         };
-    }, []);
+    }, [InClass, InStyle, iconData]);
 
     //** RETURN */
     return <>

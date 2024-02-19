@@ -20,7 +20,7 @@ class LoginCtrl extends Controller
         }
         return response()->json([
             'invalid'=>"We cannot find your credentials, please try again."
-        ], 400);
+        ], 401);
     }
 
 }

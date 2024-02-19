@@ -4,7 +4,10 @@ import { useContext, useMemo, useRef } from "react";
 //Components
 import Navbar from "./Navbar";
 import Footer from "./Footer";
-import { Gbl_settings } from "../GlobalSettings";
+import { Gbl_Settings } from "../GlobalSettings";
+
+import { Gbl_Modal } from "../Modal";
+import { PopEntryPoint } from "./Pop";
 
 
 
@@ -21,10 +24,11 @@ export default (Option)=>{
     }, [Container]);
     
     //Global
-    const [Broadcast, Upcast] = useContext(Gbl_settings);
+    const [Broadcast, Upcast] = useContext(Gbl_Settings);
     const {theme} = Broadcast;
 
     return <main className="d-flex flex-column bg-body text-body" data-bs-theme={theme}>
+       <PopEntryPoint />
         {Clean ? <></> : <Navbar/>}
         <div className={ ClassName.join(" ") }>
             {Content}

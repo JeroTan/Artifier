@@ -25,10 +25,25 @@
     fill: $dark;
 }
 
+.my-emphasis{
+    mix-blend-mode: difference;
+}
+
 .my-w-5{
     width: 24px!important;
 }
 
 .my-h-5{
     height: 24px!important;
+}
+
+.my-w-10{
+    width: 48px!important;
+}
+.my-h-10{
+    height: 48px!important;
+}
+
+svg{
+    vertical-align: unset!important;
 }

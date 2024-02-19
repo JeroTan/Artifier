@@ -7,18 +7,22 @@ import './App.scss';
 
 //Utilities
 import Routing from "./Routing";
-import {Gbl_settings, changerValue, initialValue} from "./GlobalSettings";
+import {Gbl_Settings, changerValue, initialValue} from "./GlobalSettings";
+import { Gbl_Modal, modalChanger, modalValue } from "./Modal";
 
 
 //Insert All Global Scope Here
 export default ()=>{
     
     //>useReducer
-    const [broadcast, upcast] = useReducer(changerValue, initialValue);
+    const [globalBroadcast, globalUpcast] = useReducer(changerValue, initialValue);
+    const [modalBroadcast, modalUpcast] = useReducer(modalChanger, modalValue );
     
     return  <React.StrictMode>
-        <Gbl_settings.Provider value={[broadcast, upcast]}>
-            <Routing />  
-        </Gbl_settings.Provider>          
+        <Gbl_Settings.Provider value={[globalBroadcast, globalUpcast]}>
+        <Gbl_Modal.Provider value={[modalBroadcast, modalUpcast]}>
+            <Routing />
+        </Gbl_Modal.Provider>     
+        </Gbl_Settings.Provider>          
     </React.StrictMode>
 }

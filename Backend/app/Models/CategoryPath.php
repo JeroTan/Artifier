@@ -27,7 +27,7 @@ class CategoryPath extends Model
     public function category(){
         return $this->belongsTo(Category::class);
     }
-    public function parent(){
+    public function parent(){ //What parent they are linked up if the parent is null then that record is a parent
         return $this->belongsTo(CategoryPath::class, 'category_path_id');
     }
     public function linked(){

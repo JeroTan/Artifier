@@ -6,9 +6,10 @@ import { useNavigate } from "react-router-dom";
 
 // Components
 import Pageplate from "../Utilities/Pageplate";
+import { Gallery } from "./Gallery/Main";
 
 export default ()=>{
-    return <Pageplate>
-        1 2 
+    return <Pageplate container={true}>
+        <Gallery />
     </Pageplate>
 }

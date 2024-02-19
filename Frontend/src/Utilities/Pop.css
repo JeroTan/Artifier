@@ -1,0 +1,11 @@
+
+.my-dialog::backdrop {
+    backdrop-filter: blur(4px)!important;
+    -webkit-backdrop-filter: blur(4px)!important;
+    -webkit-backdrop-filter: brightness(.35)!important;
+    -webkit-backdrop-filter: contrast(.75)!important;
+}
+.my-dialog{
+    overscroll-behavior: 'contain'!important;
+    width: 34rem!important;
+}

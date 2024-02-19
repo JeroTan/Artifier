@@ -1,5 +1,12 @@
-export function checkUsername(val){
+export function isLogin(){
+    const token = localStorage.getItem('token');
+    if(token)
+        return true;
+    return false;
+}
 
+export function checkUsername(val){
+    
 };
 
 export function checkPassword(val){

@@ -5,18 +5,22 @@ import { useNavigate } from "react-router-dom";
 
 // Utilities
 import Pageplate from "../Utilities/Pageplate";
-import { Gbl_settings } from "../GlobalSettings";
+import { Gbl_Settings } from "../GlobalSettings";
 import { Link } from "react-router-dom";
 import { ApiLink, ApiLogin, ApiSetToken } from "../Helper/Api";
 import { bootstrapValidity, checkIfError, checkLoginField } from "../Helper/Validation";
+import { Gbl_Modal } from "../Modal";
+import { popLoginError, popLoginSuccess, popLoginVerifying } from "../Helper/PopModal";
 
 
 export default ()=>{
     //>Global
-    const [Broadcast, Upcast] = useContext(Gbl_settings);
+    const [Broadcast, Upcast] = useContext(Gbl_Settings);
     const changeTheme = useCallback(()=>{
         Upcast({run: 'change-theme'});
     }, []);
+    // Global
+    const [ModalCast, ModalUpcast] = useContext(Gbl_Modal);
     const navigation = useNavigate();
 
     //Data
@@ -43,8 +47,19 @@ export default ()=>{
         if(checkIfError(v_error))
             return false;
 
+        popLoginVerifying(ModalUpcast);
         ApiLogin(v_data).then((d)=>{
-            ApiSetToken(d, navigation);
+            if(d.status == 200){
+                popLoginSuccess(ModalUpcast);
+                let timer = setInterval(()=>{
+                    ApiSetToken(d, navigation);
+                    ModalUpcast({run:'close'});
+                    clearInterval(timer);
+                }, 1000);
+            }else if(d.status == 400 || d.status == 401){
+                popLoginError(ModalUpcast);
+            }
+            
         });
     }, [v_data, v_error]);
     const upCheck = useCallback((e, type)=>{

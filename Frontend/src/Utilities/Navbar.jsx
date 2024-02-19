@@ -1,12 +1,14 @@
 // HOOKS
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useMemo, useContext, useCallback } from "react";
 
 //Components
 import logo from "../Images/logo.svg";
 import { randomizer } from "../Helper/Math";
 import Icon from "./Icon";
-import { Gbl_settings } from "../GlobalSettings";
+import { Gbl_Settings } from "../GlobalSettings";
+import { isLogin } from "../Helper/Validation";
+import { ApiTokenReset } from "../Helper/Api";
 
 
 export default()=>{
@@ -24,12 +26,27 @@ export default()=>{
         ];
         return text[randomizer(0, text.length)] + ". . .";
     }, []);
+
+    //Helper
+    const navigation = useNavigate();
+
     //>Global
-    const [Broadcast, Upcast] = useContext(Gbl_settings);
+    const [Broadcast, Upcast] = useContext(Gbl_Settings);
     const changeTheme = useCallback(()=>{
         Upcast({run: 'change-theme'});
     }, []);
 
+    //Components
+    const LogoutButton = useMemo(()=>{
+        if(!isLogin())
+            return "";
+
+        return <>
+            <li className="nav-item">
+                <a className="nav-link" href="#" onClick={()=>ApiTokenReset(navigation)}>Logout</a>
+            </li>
+        </>
+    }, [isLogin()]);
 
     return <>
         <nav className="navbar navbar-expand-lg bg-body-secondary shadow-sm">
@@ -65,6 +82,7 @@ export default()=>{
                         <li className="nav-item">
                             <a className="nav-link" href="#">Settings</a>
                         </li>
+                        {LogoutButton}
                         
                     </ul>
                     

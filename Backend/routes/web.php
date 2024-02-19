@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\V1\CategoryCtrl;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
@@ -22,3 +23,5 @@ Route::get('/initial', function(){
     Auth::attempt(['username'=>"aqua", 'password'=>'password']);
     return Auth::user();
 });
+
+Route::get('/testing', [CategoryCtrl::class, 'index']);

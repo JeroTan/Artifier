@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\Api\V1\CategoryCtrl;
+use App\Http\Controllers\Api\V1\CategoryPathCtrl;
 use App\Http\Controllers\Api\V1\ImageCtrl;
 use App\Http\Controllers\Api\V1\LoginCtrl;
 use Illuminate\Http\Request;
@@ -27,4 +29,8 @@ Route::prefix('v1')->namespace("App\Http\Controllers\Api\V1")->group(function(){
 
     Route::post('login', [LoginCtrl::class, 'loginUser']);
     Route::post('loginVerify', [LoginCtrl::class, 'loginVerify']);
+
+    Route::apiResource('category', CategoryCtrl::class)->middleware('auth:sanctum');
+
+    Route::apiResource('category_path', CategoryPathCtrl::class)->middleware('auth:sanctum');
 });
