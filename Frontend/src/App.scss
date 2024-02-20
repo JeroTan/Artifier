@@ -26,7 +26,7 @@
 }
 
 .my-emphasis{
-    mix-blend-mode: difference;
+    mix-blend-mode: difference!important;
 }
 
 .my-w-5{
@@ -42,6 +42,20 @@
 }
 .my-h-10{
     height: 48px!important;
+}
+
+
+.my-gap-x-5{
+    column-gap: 3rem!important;
+}
+
+.my-gap-y-4{
+    
+    row-gap: 1.5rem!important;
+}
+
+.my-pointer{
+    cursor: pointer;
 }
 
 svg{

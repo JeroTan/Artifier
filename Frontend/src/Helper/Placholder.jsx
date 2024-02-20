@@ -6,8 +6,30 @@ export function InlineLoading(option){
     return <div className="">
         <p className="placeholder-glow">
         { [...Array(Rows)].map((x, i)=>{
-            return <span key={i} className={`placeholder col-${randomizer(4,12)}`}></span>
+            return <span key={i} className={`placeholder mx-1 col-${randomizer(1,12)}`}></span>
         })}
         </p>
+    </div>
+}
+
+export function CardLoading(option){
+    
+    return <div className="card" aria-hidden="true" style={{width: "18rem"}}>
+        <svg className="bd-placeholder-img card-img-top" width="100%" height="180" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Placeholder" preserveAspectRatio="xMidYMid slice" focusable="false"><title>Placeholder</title><rect width="100%" height="100%" fill="#868e96"></rect></svg>
+        <div className="card-body">
+            <span className="placeholder col-6"></span>
+        </div>
+    </div>
+        
+    
+}
+
+
+export function BlockNoData(option){
+    const Title = option.title ?? "Not found!";
+    const Messasge = option.message ?? "We cannot find your item, maybe it is deleted or does not exist in the first place."
+    return <div className="text-center">
+        <h3>{Title}</h3>
+        <p className="text-secondary">{Messasge}</p>
     </div>
 }

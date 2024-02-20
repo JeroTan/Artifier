@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api\V1\CategoryCtrl;
+use App\Http\Controllers\Api\V1\CategoryPathCtrl;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
@@ -24,4 +25,4 @@ Route::get('/initial', function(){
     return Auth::user();
 });
 
-Route::get('/testing', [CategoryCtrl::class, 'index']);
+Route::get('/testing', [CategoryPathCtrl::class, 'index']);

@@ -20,9 +20,7 @@ class CategoryCtrl extends Controller
     {
         $categoring = new OwnCategory;
 
-        return response()->json([
-            "category"=>$categoring->get(),
-        ], 200);
+        return response()->json($categoring->get(), 200);
 
     }
 

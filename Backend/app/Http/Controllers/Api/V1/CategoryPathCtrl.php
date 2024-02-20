@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers\Api\V1;
 
+use App\Helper\V1\OwnCategory;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class CategoryPathCtrl extends Controller
 {
@@ -12,7 +14,9 @@ class CategoryPathCtrl extends Controller
      */
     public function index()
     {
-        //
+
+        $ownCategory = new OwnCategory;
+        return response()->json($ownCategory->getPathTree(), 200);
     }
 
     /**

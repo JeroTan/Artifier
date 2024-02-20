@@ -7,7 +7,9 @@ class Filterer{
     public function __invoke(){
         return $this;
     }
-
+    /*Parameter is the one that will be use to identify what kind of filter
+    * Column is the one you will see in the database
+    */
     protected $filterParameter = [];
     protected $searchParameter = "search";
     protected $sortParameter = []; //Column That Will be Sort

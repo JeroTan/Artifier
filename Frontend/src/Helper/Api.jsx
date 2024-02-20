@@ -100,9 +100,17 @@ export function checkTokenValidity(d, navigation){
 ///<<< LOGIN / SETTING UP ACCOUNT / AUTH
 
 ///>>> Image Query
-export async function ApiGetCategory(){
-    return await ApiRequestPlate('get', 'category');
+export async function ApiGetCategory(query = ""){
+    return await ApiRequestPlate('get', 'category'+query);
 }
+export async function ApiGetCategoryPathTree(query = ""){
+    return await ApiRequestPlate('get', 'category_path'+query);
+}
+
+export async function ApiGetImage(query = ""){
+    return await ApiRequestPlate('get', 'image'+query);
+}
+
 
 
 ///<<< Image Query
