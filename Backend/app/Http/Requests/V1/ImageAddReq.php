@@ -23,7 +23,6 @@ class ImageAddReq extends FormRequest
     {
         return [
             'userId'=>'required',
-            'categoryPathId'=>'required',
             'title'=>'required',
             'description'=>'required',
             'image'=>'required',
@@ -34,7 +33,6 @@ class ImageAddReq extends FormRequest
     {
         $this->merge([
             'user_id'=>$this->userId,
-            'category_path_id'=>$this->categoryPathId,
         ]);
     }
 }

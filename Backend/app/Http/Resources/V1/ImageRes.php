@@ -17,7 +17,6 @@ class ImageRes extends JsonResource
         return [
             "id"=> $this->id,
             "userId"=> $this->user_id,
-            "categoryPathId"=> $this->category_path_id,
             "title"=> $this->title,
             "description"=> $this->description,
             "image"=> $this->image,

@@ -1,6 +1,8 @@
 <?php
 namespace App\Helper\V1;
 
+use Illuminate\Support\Facades\Auth;
+
 class FFQuery{ //Fast Filter Query - Use to do all filtering and queriying
     protected $FilterRef;
     protected $Query;
@@ -79,8 +81,35 @@ class FFQuery{ //Fast Filter Query - Use to do all filtering and queriying
         return $this;
     }
 
-    public function doAll(){
-        return $this->search()->filter()->between()->match()->sort();
+    public function relation(){
+        if(!$this->isInitialize())
+            return $this;
+
+        $opt_filter = $this->FilterRef->transRelation($this->Request);
+        if($opt_filter){
+            foreach($opt_filter as $column => $query){
+                $this->Query = $this->Query->where($column, $query);
+            }
+        }
+        return $this;
+    }
+
+    public function auth(){
+        if(!$this->isInitialize())
+            return $this;
+
+        $user = Auth::user();
+        $this->Query = $this->Query->where('user_id', $user->id);
+        return $this;
+    }
+
+    public function doAll($auth = false){
+        $returner = $this;
+        if($auth){
+            $returner = $returner->auth();
+        }
+        $returner->search()->filter()->between()->match()->relation()->sort();
+        return $returner;
     }
 
     public function getQuery(){

@@ -4,6 +4,7 @@ namespace App\Helper\V1;
 use App\Models\Category;
 use App\Models\CategoryPath;
 use App\Models\Image;
+use App\Models\ImageCategoryPaths;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 
@@ -11,8 +12,9 @@ class OwnCategory{
 
     public function get(){
         $user = Auth::user();
-        $image = Image::select('category_path_id')->where('user_id', $user->id);
-        $category_path = CategoryPath::where('id', $image)->get()->toArray();
+        $image = Image::select('id')->where('user_id', $user->id);
+        $image_category_paths = ImageCategoryPaths::select('category_path_id')->where('id', $image);
+        $category_path = CategoryPath::where('id', $image_category_paths)->get()->toArray();
         $categoryID =  $this->filterCategory($category_path);
         return Category::whereIn('id',$categoryID)->get()->toArray();
     }
@@ -20,14 +22,16 @@ class OwnCategory{
 
     public function getPathTree(){
         $user = Auth::user();
-        $image = Image::select('category_path_id')->where('user_id', $user->id);
-        $category_path = CategoryPath::with('category')->where('id', $image)->get()->toArray();
+        $image = Image::select('id')->where('user_id', $user->id);
+        $image_category_paths = ImageCategoryPaths::select('category_path_id')->where('id', $image);
+        $category_path = CategoryPath::with('category')->where('id', $image_category_paths)->get()->toArray();
         $categoryPathTree = $this->pathingCategory($category_path);
         return $categoryPathTree;
     }
 
     protected function pathingCategory($data){
         $allPath = CategoryPath::with('category')->get()->toArray();
+
 
         function linkDepth($categoryData, $allPath){
             if($categoryData['category_path_id'] === null){

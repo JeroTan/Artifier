@@ -29,8 +29,8 @@ class Image extends Model
     public function user(){
         return $this->belongsTo(User::class);
     }
-    public function categoryPath(){
-        return $this->belongsTo(CategoryPath::class);
+    public function imageCategoryPaths(){
+        return $this->hasMany(ImageCategoryPaths::class);
     }
 
 }

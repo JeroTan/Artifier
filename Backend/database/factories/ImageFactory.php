@@ -24,7 +24,6 @@ class ImageFactory extends Factory
         $faked = $this->faker;
         return [
             "user_id"=>User::factory(),
-            "category_path_id"=>CategoryPath::factory(),
             "title"=>$faked->sentence(3),
             "description"=>$faked->paragraph(),
             "image"=>$faked->imageUrl(640, 480, 'illustration', true),

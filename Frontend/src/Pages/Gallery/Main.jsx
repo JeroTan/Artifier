@@ -226,7 +226,6 @@ function ImageListContainer(option){
         selectedFlatList: getCatPathFlat([option.categories]),
     });
     const [ v_imageList, e_imageList ] = useState(false);
-    
 
     //<Componets
     const ButtonIsSelectedColor = useMemo(()=>{
@@ -236,7 +235,7 @@ function ImageListContainer(option){
     useEffect(()=>{
         let query = "?";
         if(imgCast.selectedFlatList.length > 0){
-            query = query+"category_path_id[match]="+imgCast.selectedFlatList.join(',');
+            query = query+"category_path_id="+imgCast.selectedFlatList.join(',');
         }
         ApiGetImage(query).then((d)=>{
             e_imageList(d.data.data);
@@ -288,10 +287,9 @@ function CategoryContainer(option){
 
     //Componet
     const ButtonComp = useCallback((catData, pathData)=>{
-        const buttonColorBootstrap = ImgCast.selectedTree == catData.id ? "btn-secondary" : "btn-outline-secondary";
+        const buttonColorBootstrap = ImgCast.selectedTree == catData.id ? "btn-secondary" : "btn-outline-secondary"; ////THE ERROR IS HERE
         const revampStyle = ImgCast.selectedTree == catData.id ? {backgroundColor: catData.color, borderColor: catData.color} : { borderColor: catData.color };
         return <button className={`btn ${buttonColorBootstrap}`} type="button" onClick={()=>{
-        
             s_spreadTree(prev=>!prev);
             ImgUpcast({run:'selectCat',val:pathData.id});
             ImgUpcast({run:'selectCatFlats', val:getCatPathFlat([pathData])});
@@ -303,7 +301,6 @@ function CategoryContainer(option){
             <span className="fw-lighter h3 p-0 m-0">\</span>
         </div>
         <div className="btn-group-vertical" role="group" aria-label="CategoryTree Buttons">
-           
             {  c_spreadTree ? (
                 Categories.map((x, i)=>{
                     return <Fragment key={x.id}>

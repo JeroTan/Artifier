@@ -11,14 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('image', function (Blueprint $table) {
+        Schema::create('image_category_paths', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->nullable()->constrained('user')->nullOnDelete()->cascadeOnUpdate();
+            $table->foreignId('image_id')->nullable()->constrained('image')->nullOnDelete()->cascadeOnUpdate();
             $table->foreignId('category_path_id')->nullable()->constrained('category_path')->nullOnDelete()->cascadeOnUpdate();
-            $table->string('title')->nullable();
-            $table->text('description')->nullable();
-            $table->string('image')->nullable();
-            $table->nullableTimestamps(0);
         });
     }
 
@@ -28,7 +24,7 @@ return new class extends Migration
     public function down(): void
     {
         Schema::disableForeignKeyConstraints();
-
+        Schema::dropIfExists('image_category_paths');
         Schema::enableForeignKeyConstraints();
     }
 };

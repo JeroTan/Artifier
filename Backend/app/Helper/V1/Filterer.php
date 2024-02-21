@@ -13,6 +13,7 @@ class Filterer{
     protected $filterParameter = [];
     protected $searchParameter = "search";
     protected $sortParameter = []; //Column That Will be Sort
+    protected $relationParameter = []; //Will be used for public relation, This is always be a match and it will return a query of variables
 
     protected $singleMapper = [
         "eq"=>"=",
@@ -22,6 +23,7 @@ class Filterer{
         "lte"=>"<=",
     ];
     protected $searchMapper = []; //Column That Will be search
+    protected $relationMapper = []; //Table that will be traverse
 
     public function transFilter(Request $request){
         $transformedFilter = [];
@@ -126,6 +128,24 @@ class Filterer{
             $r_column = $column;
 
             $transformedFilter[] = "LOWER($r_column) LIKE '%". strtolower($data) ."%'";
+        }
+        return $transformedFilter;
+    }
+
+    public function transRelation(Request $request){
+        $transformedFilter = []; //id and query
+        foreach($this->relationParameter as $column){
+
+            $data = $request->query($column);
+            if(!$data){
+                continue;
+            }
+
+            $queruring = $this->relationMapper[$column];
+            $data = explode(",", $data);
+            $table = new $queruring['table'];
+
+            $transformedFilter[$queruring['matchToColumn']] = $table->select($queruring['select'])->whereIn($queruring['column'], $data);
         }
         return $transformedFilter;
     }

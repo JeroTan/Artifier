@@ -26,7 +26,6 @@ class ImageUpdReq extends FormRequest
         $methodUsed = $this->method();
         $rules = [
             'userId'=>["required"],
-            'categoryPathId'=>["required"],
             'title'=>["required"],
             'description'=>["required"],
             'image'=>["required"],
@@ -48,7 +47,6 @@ class ImageUpdReq extends FormRequest
         $methodUsed = $this->method();
         $merger = [
             'user_id'=>false,
-            'category_path_id'=>false,
         ];
         $kChange = new KeyConverter;
 

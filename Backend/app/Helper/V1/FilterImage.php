@@ -3,11 +3,11 @@ namespace App\Helper\V1;
 
 use Illuminate\Http\Request;
 use App\Helper\V1\Filterer;
+use App\Models\ImageCategoryPaths;
 
 class FilterImage extends Filterer {
 
     protected $filterParameter  = [
-        'category_path_id'=>["eq", "match"],
         'created_at'=>["lt", "gt", "gte", "lte"],
         'updated_at'=>["lt", "gt", "gte", "lte"],
     ];
@@ -27,5 +27,12 @@ class FilterImage extends Filterer {
         'updated_at',
     ];
 
+    protected $relationParameter = [
+        'category_path_id',
+    ];
+
+    protected $relationMapper = [
+        'category_path_id'=>['table'=>ImageCategoryPaths::class, 'select'=>'image_id', 'column'=>'category_path_id', 'matchToColumn'=>'id'],
+    ];
 
 }

@@ -23,7 +23,6 @@ class ImageAddMultiReq extends FormRequest
     {
         return [
             '*.userId'=>'required',
-            '*.categoryPathId'=>'required',
             '*.title'=>'required',
             '*.description'=>'required',
             '*.image'=>'required',
@@ -35,7 +34,6 @@ class ImageAddMultiReq extends FormRequest
         $merger = [];
         foreach($this->toArray() as $val){
             $val['user_id'] = $val['userId'] ?? null;
-            $val['category_path_id'] = $val['categoryPathId'] ?? null;
             $merger[] = $val;
         };
 
