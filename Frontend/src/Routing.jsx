@@ -1,13 +1,16 @@
 //Components
-import Home from "./Pages/Home"
-import Login from "./Pages/Login"
-import Signup from "./Pages/Signup"
+import Home from "./Pages/Home";
+import Login from "./Pages/Login";
+import Signup from "./Pages/Signup";
+import { AddImage } from "./Pages/Gallery/Add";
+import { UpdateImage } from "./Pages/Gallery/Update";
 
 //Utilities
 import Gatekeeper from "./Gatekeeper"
 
 //Hooks
 import { BrowserRouter, Routes, Route } from "react-router-dom"
+
 
 
 export default()=>{
@@ -29,6 +32,24 @@ export default()=>{
             <Route path="/signup" element={
                 <Gatekeeper type="noAuthentication">
                     <Signup />
+                </Gatekeeper>
+            } />
+
+            <Route path="/image/" element={ 
+                <Gatekeeper type="needAuthentication">
+                    <AddImage />
+                </Gatekeeper>
+            } />
+
+            <Route path="/add_image" element={ 
+                <Gatekeeper type="needAuthentication">
+                    <AddImage />
+                </Gatekeeper>
+            } />
+
+            <Route path="/update_image/" element={ 
+                <Gatekeeper type="needAuthentication">
+                    <UpdateImage />
                 </Gatekeeper>
             } />
 

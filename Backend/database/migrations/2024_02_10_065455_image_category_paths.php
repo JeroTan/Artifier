@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('image', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->nullable()->constrained('user')->nullOnDelete()->cascadeOnUpdate();
+            $table->foreignId('category_path_id')->nullable()->constrained('category_path')->nullOnDelete()->cascadeOnUpdate();
             $table->string('title')->nullable();
             $table->text('description')->nullable();
             $table->string('image')->nullable();
@@ -27,7 +28,7 @@ return new class extends Migration
     public function down(): void
     {
         Schema::disableForeignKeyConstraints();
-        Schema::dropIfExists('image');
+
         Schema::enableForeignKeyConstraints();
     }
 };

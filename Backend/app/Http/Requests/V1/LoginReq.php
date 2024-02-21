@@ -19,6 +19,14 @@ class LoginReq extends FormRequest
      *
      * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
      */
+
+    public function messages(): array
+    {
+        return [
+            'username.required' => 'You forget your username.',
+            'password.required' => 'Your forget your password.',
+        ];
+    }
     public function rules(): array
     {
         return [

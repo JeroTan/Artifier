@@ -26,7 +26,7 @@ export function CardLoading(option){
 
 
 export function BlockNoData(option){
-    const Title = option.title ?? "Not found!";
+    const Title = option.title ?? "It's empty here!";
     const Messasge = option.message ?? "We cannot find your item, maybe it is deleted or does not exist in the first place."
     return <div className="text-center">
         <h3>{Title}</h3>

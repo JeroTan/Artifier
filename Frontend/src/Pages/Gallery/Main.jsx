@@ -67,7 +67,7 @@ export function Gallery(){
         <hr />
 
         <main>
-            {thisCast.categoryTree == false ? <InlineLoading rows={6} /> : (
+            {thisCast.categoryTree === false ? <InlineLoading rows={6} /> : (
                 thisCast.categoryTree.length <= 0 ? <> <BlockNoData /> </> : (
                     thisCast.categoryTree.map( x=>{
                         return <ImageListContainer key={x.id} categories={x} />
@@ -325,15 +325,47 @@ function CategoryContainer(option){
 }
 function ImageCardContainer(option){
     const Title = option.data.title;
+    const Id = option.data.id;
     const Image = option.data.image;
+    const Uploaded = option.data.createdAt;
+    const [thisCast, thisUpcast] = useContext(Gbl_Gallery);
+    const navigation = useNavigate();
 
-    return <div className="card overflow-hidden" aria-hidden="true" style={{width: "18rem"}}>
-        <div className="position-relative w-100 overflow-hidden my-pointer"  style={{aspectRatio: "1/1"}}>
-            <img src={`https://cdn.donmai.us/sample/56/1a/__sparkle_honkai_and_1_more_drawn_by_gleam_lin_shi__sample-561ae3b309b2aa3bdb7e4976195f9417.jpg`} className="w-100 h-100 position-relative  object-fit-cover" style={{objectPosition: "top center"}} alt={`imageOf${Title}`}></img>
-        </div>
-        
-        <div className="p-2">
-            {Title}
+    const cardStyle = useMemo(()=>{
+        if(thisCast.listView == "compact")
+            return {width: "18rem"}
+        return {width: "100%", height:"7rem"}
+    }, [thisCast.listView]);
+    const imageClass1 = useMemo(()=>{
+        if(thisCast.listView == "compact")
+            return "w-100"
+        return "h-100"
+    }, [thisCast.listView]);
+    const insideContainer = useMemo(()=>{
+        if(thisCast.listView == "compact")
+            return ""
+        return "d-flex"
+    }, [thisCast.listView]);
+    const content = useMemo(()=>{
+        if(thisCast.listView == "compact")
+            return Title;
+        const dateMe = new Date(Uploaded);
+        return <>
+            <h4 className="text-break word-wrap">{Title}</h4>
+            <small className="mb-0 ">Uploaded: <span className="text-secondary">{dateMe.getFullYear()}, {dateMe.getMonth()}-{dateMe.getDate()} | {dateMe.getHours()}:{dateMe.getMinutes()}</span> </small>
+        </>
+    }, [thisCast.listView, Title]);
+
+
+    return <div className="card overflow-hidden" aria-hidden="true" style={cardStyle}>
+        <div className={`position-relative ${insideContainer} w-100 h-100`}>
+            <div className={`position-relative ${imageClass1} overflow-hidden my-pointer`}  style={{aspectRatio: "1/1"}}>
+                <img src={Image} className="w-100 h-100 position-relative  object-fit-cover" style={{objectPosition: "top center"}} alt={`imageOf${Title}`}></img>
+            </div>
+            
+            <div className="p-2">
+                {content}
+            </div>
         </div>
     </div>
 }

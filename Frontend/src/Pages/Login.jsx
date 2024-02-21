@@ -32,7 +32,7 @@ export default ()=>{
         password: undefined,
     });
 
-    //DOM Manip
+    //Components
     const buttonSubmitDisabled = useMemo(()=>{
         if(checkIfError(v_error))
             return 'disabled';
@@ -56,7 +56,22 @@ export default ()=>{
                     clearInterval(timer);
                 }, 1000);
             }else if(d.status == 400 || d.status == 401){
+                e_error(prev=>{
+                    const sPrev = structuredClone(prev);
+                    sPrev.username = "Username did not match with your password.";
+                    sPrev.password = "Password did not match with your username.";
+                    return sPrev;
+                })
                 popLoginError(ModalUpcast);
+            }else if(d.status == 422 ){
+                e_error(prev=>{
+                    const sPrev = structuredClone(prev);
+                    Object.keys(d.data.errors).forEach((e) => {
+                        sPrev[e] = d.data.errors[e][0];
+                    });
+                    return sPrev
+                });
+                ModalUpcast({run:'close'});
             }
             
         });
@@ -89,7 +104,7 @@ return <Pageplate clean={true} container={true}>
         <div className="card" style={{width:"30rem"}}>
 
             <div className="card-body">
-                <h5 className="card-title mb-0">Login</h5>
+                <h4 className="card-title mb-0">Login</h4>
                 <small className="card-subtitle text-body-secondary"> Don't have and account yet? Click <Link className="link-opacity-50-hover" to="/signup">here</Link> to sign-up. </small>
             </div>
             {/**Adjust the Form Here */}

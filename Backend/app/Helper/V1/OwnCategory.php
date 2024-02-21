@@ -19,7 +19,7 @@ class OwnCategory{
 
 
     public function getPathTree(){
-        $user = User::find(9);
+        $user = Auth::user();
         $image = Image::select('category_path_id')->where('user_id', $user->id);
         $category_path = CategoryPath::with('category')->where('id', $image)->get()->toArray();
         $categoryPathTree = $this->pathingCategory($category_path);
