@@ -360,7 +360,7 @@ function ImageCardContainer(option){
                 <img src={Image} className="w-100 h-100 position-relative  object-fit-cover" style={{objectPosition: "top center"}} alt={`imageOf${Title}`}></img>
             </div>
             
-            <div className="p-2">
+            <div className="p-2 ">
                 {content}
             </div>
         </div>

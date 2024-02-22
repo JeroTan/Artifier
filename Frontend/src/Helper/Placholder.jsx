@@ -24,6 +24,19 @@ export function CardLoading(option){
     
 }
 
+export function TextLoading(option){
+    const Title = option.title;
+    const Subtitle = option.subtitle;
+
+    return <div className="d-flex flex-column align-items-center">
+        <div className="d-flex align-items-center justify-content-center mb-2">
+            <div className="spinner-border" aria-hidden="true"></div>
+        </div>
+        <h3 className="">{Title}</h3>
+        <p className="text-secondary">{Subtitle}</p>
+    </div>
+}
+
 
 export function BlockNoData(option){
     const Title = option.title ?? "It's empty here!";

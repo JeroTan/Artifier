@@ -28,6 +28,20 @@
 .my-emphasis{
     mix-blend-mode: difference!important;
 }
+.my-w-1{
+    width: calc(24px*.2)!important;
+}
+.my-h-1{
+    height: calc(24px*.2)!important;
+}
+
+.my-w-2{
+    width: calc(24px*.4)!important;
+}
+.my-h-2{
+    height: calc(24px*.4)!important;
+}
+
 
 .my-w-5{
     width: 24px!important;

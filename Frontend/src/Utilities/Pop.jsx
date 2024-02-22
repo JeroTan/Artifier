@@ -14,6 +14,7 @@ export function PopTemplate(option){
 
 
     //Components
+    //>>>>>>>>>>TEMPLATE
     const CloseButton = useMemo(()=>{
         if(!CanClose){
             return <></>;
@@ -46,6 +47,7 @@ export function PopTemplate(option){
         {AllowButton ? Button : ""}
     </dialog>
 }
+//<<<<<<<<<<<TEMPLATE
 
 function PopSuccess(option){
     // Global

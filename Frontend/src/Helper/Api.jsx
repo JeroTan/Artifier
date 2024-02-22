@@ -114,9 +114,17 @@ export async function ApiGetImage(query = ""){
     return await ApiRequestPlate('get', 'image'+query);
 }
 
-
-
+export async function ApiGetPathSuggestion(query = ""){
+    return await ApiRequestPlate('get', 'category_path_suggestion'+"?key="+query);
+}
 ///<<< Image Query
+
+
+///>>> Image Upload and Editing
+export async function ApiApplyNewCategory(data){
+    return await ApiRequestPlate('post', 'category_path', data);
+}
+///<<< Image Upload and Editing
 
 
 

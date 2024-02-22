@@ -9,3 +9,15 @@ export function getCatPathFlat(tree){
     });
     return flats;
 }
+
+export function getCatPathFlatData(tree){
+    let flats = [];
+    tree.forEach(e => {
+        
+        flats[flats.length] = {name:e.category.name, color:e.category.color, id:e.id, category_id:e.category.id};
+        if(e?.child){
+            flats = flats.concat(getCatPathFlatData(e.child));
+        }
+    });
+    return flats;
+}

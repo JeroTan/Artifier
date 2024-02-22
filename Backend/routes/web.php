@@ -25,4 +25,4 @@ Route::get('/initial', function(){
     return Auth::user();
 });
 
-Route::get('/testing', [CategoryPathCtrl::class, 'index']);
+Route::get('/testing', [CategoryPathCtrl::class, 'pathSuggestion']);

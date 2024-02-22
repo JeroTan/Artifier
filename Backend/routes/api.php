@@ -35,4 +35,5 @@ Route::prefix('v1')->namespace("App\Http\Controllers\Api\V1")->group(function(){
     Route::apiResource('category', CategoryCtrl::class)->middleware('auth:sanctum');
 
     Route::apiResource('category_path', CategoryPathCtrl::class)->middleware('auth:sanctum');
+    Route::get('category_path_suggestion', [CategoryPathCtrl::class, 'pathSuggestion']);
 });

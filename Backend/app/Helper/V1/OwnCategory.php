@@ -19,17 +19,44 @@ class OwnCategory{
         return Category::whereIn('id',$categoryID)->get()->toArray();
     }
 
+    protected function filterCategory($data){
+        $allCategory = [];
+        $allPath = CategoryPath::all()->toArray();
 
-    public function getPathTree(){
-        $user = Auth::user();
-        $image = Image::select('id')->where('user_id', $user->id);
-        $image_category_paths = ImageCategoryPaths::select('category_path_id')->where('id', $image);
-        $category_path = CategoryPath::with('category')->where('id', $image_category_paths)->get()->toArray();
+        function domainExpansion($limitless, $energy){ ///ENERGY means all the category
+            $arrayToReturn = [];
+            $result = OwnCategory::murasaki($limitless, $energy);
+            $arrayToReturn = [ $result["category_id"] ];
+            if($result["category_path_id"] != null){
+                $arrayToReturn = array_merge( $arrayToReturn, domainExpansion($result["category_path_id"], $energy));
+            }
+            return $arrayToReturn;
+        }
+
+
+        foreach($data as $val){
+            if($val["category_path_id"] == null){
+                $allCategory[] = $val["category_id"];
+            }else{
+                $allCategory = array_merge($allCategory, domainExpansion($val["category_path_id"], $allPath ));
+            }
+        }
+
+        return $allCategory;
+    }
+
+    public function getPath($category_path){
+        $categoryPathTree = $this->pathingCategory($category_path, false);
+        return $categoryPathTree;
+    }
+
+    public function getPathTree($category_path){
+
         $categoryPathTree = $this->pathingCategory($category_path);
         return $categoryPathTree;
     }
 
-    protected function pathingCategory($data){
+    protected function pathingCategory($data, $makeSoloParent = true){
         $allPath = CategoryPath::with('category')->get()->toArray();
 
 
@@ -64,7 +91,7 @@ class OwnCategory{
                 $getParents[] = $val;
         }
 
-        //Make Them Solo Parent
+        //Make Them Solo Parent if Possible
         //make a recursive function that will accept arguments such as solo nad getparents
         function soloedParents($soloParents, $getParents){
             if(count($getParents) == 0){
@@ -75,8 +102,18 @@ class OwnCategory{
             $link = false;
             foreach($soloParents as $key=> $val){
                 if($val['id'] == $refRawParent['id']){
-                    $toLink = soloedParents($soloParents[$key]['child'], $refRawParent['child']);
-                    $soloParents[$key]['child'] = [$toLink];
+                    $newDepthSolo = [];
+                    $newDepthReference = [];
+                    if(isset($val['child']))
+                        $newDepthSolo = $val['child'];
+
+
+                    if(isset($refRawParent['child']))
+                        $newDepthReference = $refRawParent['child'];
+
+
+                    $toLink = soloedParents($newDepthSolo, $newDepthReference);
+                    $soloParents[$key]['child'] = $toLink;
                     $link = true;
                     break;
                 }
@@ -87,39 +124,48 @@ class OwnCategory{
             array_splice($getParents, 0, 1);
             return soloedParents($soloParents, $getParents);
         };
-        $soloParents = soloedParents([], $getParents);
+        if($makeSoloParent)
+            $soloParents = soloedParents([], $getParents);
+        else
+            $soloParents = $getParents;
 
         return $soloParents;
 
     }
 
-    protected function filterCategory($data){
-        $allCategory = [];
-        $allPath = CategoryPath::all()->toArray();
+    // public function checkIfParentExist($category_path_list){ // return true if full path is exist else return the index where the link to child found deadend
+    //     $allPath = CategoryPath::with('category')->get()->toArray();
 
-        function domainExpansion($limitless, $energy){ ///ENERGY means all the category
-            $arrayToReturn = [];
-            $result = OwnCategory::murasaki($limitless, $energy);
-            $arrayToReturn = [ $result["category_id"] ];
-            if($result["category_path_id"] != null){
-                $arrayToReturn = array_merge( $arrayToReturn, domainExpansion($result["category_path_id"], $energy));
-            }
-            return $arrayToReturn;
-        }
+    //     $result = false;
+    //     $lastParent = null;
+    //     foreach($category_path_list as $key => $val){
+    //         if($val['id'] == null){
+    //             $result = $key;
+    //             break;
+    //         }
 
+    //         $checkIfPathActuallyExist = $this->murasaki($val['id'], $allPath);
+    //         if(!$checkIfPathActuallyExist){
+    //             $result = $key;
+    //             break;
+    //         }
+    //         if( $checkIfPathActuallyExist['category_path_id'] === $lastParent ){
+    //             $lastParent = $val['id'];
+    //         }else{
+    //             $result = $key;
+    //             break;
+    //         }
 
-        foreach($data as $val){
-            if($val["category_path_id"] == null){
-                $allCategory[] = $val["category_id"];
-            }else{
-                $allCategory = array_merge($allCategory, domainExpansion($val["category_path_id"], $allPath ));
-            }
-        }
+    //         if($key == count($category_path_list)-1){
+    //             $result = true;
+    //             break;
+    //         }
+    //     }
 
-        return $allCategory;
-    }
+    //     return $result;
+    // }
 
-    public static function murasaki($blue, $red){//return the categorypath id of parent value; BLUE means the id of categoryPath
+    public static function murasaki($blue, $red){//return the categorypath of match id; BLUE means the id of categoryPath
         if(count($red) == 1){
             if($red[0]["id"] === $blue)
                 return $red[0];
@@ -141,5 +187,29 @@ class OwnCategory{
             return $leftSide;
         }
     }
+
+    public static function murasaki2($blue, $red){//return the categorypath of match parentid from argument id; BLUE means the id of categoryPath
+        if(count($red) == 1){
+            if($red[0]["category_path_id"] === $blue)
+                return $red[0];
+            else return false;
+        }
+
+        $lengthOfArray = count($red);
+        $leftHalf = floor($lengthOfArray/2);
+        $rightHalf =  $lengthOfArray - $leftHalf;
+        $leftArray = array_slice($red, 0, $leftHalf);
+        $rightArray = array_slice($red, $leftHalf, $rightHalf);
+        $leftSide = OwnCategory::murasaki($blue, $leftArray);
+        $rightSide = OwnCategory::murasaki($blue, $rightArray);
+
+
+        if($leftSide === false){
+            return $rightSide;
+        }else{
+            return $leftSide;
+        }
+    }
+
 
 };
