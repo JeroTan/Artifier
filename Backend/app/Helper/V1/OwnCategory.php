@@ -10,11 +10,8 @@ use Illuminate\Support\Facades\Auth;
 
 class OwnCategory{
 
-    public function get(){
-        $user = Auth::user();
-        $image = Image::select('id')->where('user_id', $user->id);
-        $image_category_paths = ImageCategoryPaths::select('category_path_id')->where('id', $image);
-        $category_path = CategoryPath::where('id', $image_category_paths)->get()->toArray();
+    public function get($category_path){
+
         $categoryID =  $this->filterCategory($category_path);
         return Category::whereIn('id',$categoryID)->get()->toArray();
     }
@@ -38,6 +35,7 @@ class OwnCategory{
             if($val["category_path_id"] == null){
                 $allCategory[] = $val["category_id"];
             }else{
+                $allCategory[] = $val["category_id"];
                 $allCategory = array_merge($allCategory, domainExpansion($val["category_path_id"], $allPath ));
             }
         }
@@ -133,37 +131,37 @@ class OwnCategory{
 
     }
 
-    // public function checkIfParentExist($category_path_list){ // return true if full path is exist else return the index where the link to child found deadend
-    //     $allPath = CategoryPath::with('category')->get()->toArray();
+    public function checkIfParentExist($category_path_list){ // return true if full path is exist else return the index where the link to child found deadend
+        $allPath = CategoryPath::with('category')->get()->toArray();
 
-    //     $result = false;
-    //     $lastParent = null;
-    //     foreach($category_path_list as $key => $val){
-    //         if($val['id'] == null){
-    //             $result = $key;
-    //             break;
-    //         }
+        $result = false;
+        $lastParent = null;
+        foreach($category_path_list as $key => $val){
+            if($val['id'] == null){
+                $result = $key;
+                break;
+            }
 
-    //         $checkIfPathActuallyExist = $this->murasaki($val['id'], $allPath);
-    //         if(!$checkIfPathActuallyExist){
-    //             $result = $key;
-    //             break;
-    //         }
-    //         if( $checkIfPathActuallyExist['category_path_id'] === $lastParent ){
-    //             $lastParent = $val['id'];
-    //         }else{
-    //             $result = $key;
-    //             break;
-    //         }
+            $checkIfPathActuallyExist = $this->murasaki($val['id'], $allPath);
+            if(!$checkIfPathActuallyExist){
+                $result = $key;
+                break;
+            }
+            if( $checkIfPathActuallyExist['category_path_id'] === $lastParent ){
+                $lastParent = $val['id'];
+            }else{
+                $result = $key;
+                break;
+            }
 
-    //         if($key == count($category_path_list)-1){
-    //             $result = true;
-    //             break;
-    //         }
-    //     }
+            if($key == count($category_path_list)-1){
+                $result = true;
+                break;
+            }
+        }
 
-    //     return $result;
-    // }
+        return $result;
+    }
 
     public static function murasaki($blue, $red){//return the categorypath of match id; BLUE means the id of categoryPath
         if(count($red) == 1){

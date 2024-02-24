@@ -3,6 +3,7 @@
 namespace App\Http\Requests\V1;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Facades\Auth;
 
 class ImageAddReq extends FormRequest
 {
@@ -22,17 +23,33 @@ class ImageAddReq extends FormRequest
     public function rules(): array
     {
         return [
-            'userId'=>'required',
-            'title'=>'required',
-            'description'=>'required',
-            'image'=>'required',
+            'user_id'=>'required',
+            'title'=>'required|max:256',
+            'description'=>'array',
+            'description.*'=>'nullable|string',
+            'image'=>'required|image|max:10000',
+            'categoryPathId'=>"required|array|min:1",
+            "categoryPathId.*"=>"required|exists:category_path,id",
         ];
     }
 
     protected function prepareForValidation()
     {
         $this->merge([
-            'user_id'=>$this->userId,
+            'user_id'=>Auth::user()->id,
+            'description'=>$this->input('description')  === null ? [] : json_decode($this->input('description'), true),
+            'categoryPathId'=>$this->input('categoryPathId') === null ? [] : json_decode($this->input('categoryPathId', true))
+        ]);
+    }
+
+    protected function passedValidation()
+    {
+        $this->replace([
+            'user_id'=> $this->user_id,
+            'description' => json_encode($this->description),
+            'title' => $this->title,
+            'image' => $this->image,
+            'category_path_id' => $this->categoryPathId,
         ]);
     }
 }

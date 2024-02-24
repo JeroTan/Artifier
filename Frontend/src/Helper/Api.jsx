@@ -2,10 +2,11 @@ import axios from 'axios';
 import { useContext } from 'react';
 import { Gbl_Modal } from '../Modal';
 
-export function ApiLink(Additionals = ""){
-    const domain = "localhost:8000/api/v1/";
+export function ApiLink(Additionals = "", withApiLink = true){
+    const domain = "localhost:8000";
+    const apiField = "/api/v1/";
     const protocol = "http";
-    const site = protocol+"://"+domain+Additionals;
+    const site = protocol+"://"+domain+(withApiLink?apiField:"")+Additionals;
     return site;
 }
 
@@ -17,11 +18,11 @@ const basicRequest = axios.create({
     }
 });
 
-const authRequest = ()=>{
+const authRequest = (file)=>{
     return axios.create({
         baseURL:ApiLink(),
         headers:{
-            "content-type": "application/json",
+            "content-type": file?"multipart/form-data":"application/json",
             "accept": "application/json",
             'authorization': `Bearer ${localStorage.getItem('token')}`,
             'Access-Control-Allow-Credentials': 'true',
@@ -47,10 +48,10 @@ function successProcessing(success){
         data: successData,
     }
 }
-export async function ApiRequestPlate(request = "get",queryString = "", data=false, ){
+export async function ApiRequestPlate(request = "get",queryString = "", data=false, file=false){
     let response;
     const token = localStorage.getItem('token') ?? false;
-    const AxiosTime = token ? authRequest() : basicRequest;
+    const AxiosTime = token ? authRequest(file) : basicRequest;
     try {
         switch(request){
             case "get":
@@ -111,18 +112,30 @@ export async function ApiGetCategoryPathTree(query = ""){
 }
 
 export async function ApiGetImage(query = ""){
-    return await ApiRequestPlate('get', 'image'+query);
+    return await ApiRequestPlate('get', 'image/'+query);
 }
 
 export async function ApiGetPathSuggestion(query = ""){
     return await ApiRequestPlate('get', 'category_path_suggestion'+"?key="+query);
 }
+
+export function ApiImageLink(image, faction = "gallery/"){
+    const routeSlash = "/storage/"+faction;
+    return ApiLink(routeSlash+image, false);
+}
+
 ///<<< Image Query
 
 
 ///>>> Image Upload and Editing
 export async function ApiApplyNewCategory(data){
     return await ApiRequestPlate('post', 'category_path', data);
+}
+export async function ApiUploadImageData(formData){
+    return await ApiRequestPlate('post', 'image', formData, true);
+}
+export async function ApiLinkImageCategory(data){
+    return await ApiRequestPlate('post', 'image_category_paths', data);
 }
 ///<<< Image Upload and Editing
 

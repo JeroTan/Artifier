@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Api\V1\CategoryCtrl;
 use App\Http\Controllers\Api\V1\CategoryPathCtrl;
+use App\Models\Category;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
@@ -25,4 +26,4 @@ Route::get('/initial', function(){
     return Auth::user();
 });
 
-Route::get('/testing', [CategoryPathCtrl::class, 'pathSuggestion']);
+Route::get('/testing', [CategoryPathCtrl::class, 'index']);

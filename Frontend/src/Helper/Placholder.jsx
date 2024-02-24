@@ -15,7 +15,7 @@ export function InlineLoading(option){
 export function CardLoading(option){
     
     return <div className="card" aria-hidden="true" style={{width: "18rem"}}>
-        <svg className="bd-placeholder-img card-img-top" width="100%" height="180" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Placeholder" preserveAspectRatio="xMidYMid slice" focusable="false"><title>Placeholder</title><rect width="100%" height="100%" fill="#868e96"></rect></svg>
+        <ImagePlaceholder />
         <div className="card-body">
             <span className="placeholder col-6"></span>
         </div>
@@ -45,4 +45,9 @@ export function BlockNoData(option){
         <h3>{Title}</h3>
         <p className="text-secondary">{Messasge}</p>
     </div>
+}
+
+export function ImagePlaceholder(option){
+    const Height = option.height ?? 180;
+    return <svg className="bd-placeholder-img card-img-top" width="100%" height={Height} xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Placeholder" preserveAspectRatio="xMidYMid slice" focusable="false"><title>Loading Image</title><rect width="100%" height="100%" fill="#868e96"></rect></svg>
 }

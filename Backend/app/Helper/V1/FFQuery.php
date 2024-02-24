@@ -88,7 +88,7 @@ class FFQuery{ //Fast Filter Query - Use to do all filtering and queriying
         $opt_filter = $this->FilterRef->transRelation($this->Request);
         if($opt_filter){
             foreach($opt_filter as $column => $query){
-                $this->Query = $this->Query->where($column, $query);
+                $this->Query = $this->Query->whereIn($column, $query);
             }
         }
         return $this;

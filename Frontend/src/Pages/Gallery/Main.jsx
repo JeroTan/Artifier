@@ -2,7 +2,7 @@ import { Suspense, createContext, useCallback, useContext, useState, useEffect, 
 import Icon from "../../Utilities/Icon";
 import { BlockNoData, CardLoading, InlineLoading } from "../../Helper/Placholder";
 import { useNavigate } from "react-router-dom";
-import { ApiGetCategory, ApiGetCategoryPathTree, ApiGetImage } from "../../Helper/Api";
+import { ApiGetCategory, ApiGetCategoryPathTree, ApiGetImage, ApiImageLink } from "../../Helper/Api";
 import { Gbl_Settings } from "../../GlobalSettings";
 import { getCatPathFlat } from "../../Helper/RyouikiTenkai";
 
@@ -118,6 +118,7 @@ function Filters(){
 
     useEffect(()=>{
         ApiGetCategory().then((d)=>{
+
             e_category(d.data.map((e)=>{
                 const ref = structuredClone(e);
                 ref.checked = false;
@@ -203,10 +204,11 @@ function Filters(){
     </>
 }
 
+///Use to List Images with the image cards and category path list itself
 function ImageListContainer(option){
     const Category = option.categories.category;
     const CategoryChild = option.categories.child ?? false;
-    const [imgCast, imgUpcast] = useReducer((state, action)=>{
+    const [imgCast, imgUpcast] = useReducer((state, action)=>{//Global data that will be you to select what category is selected
         const refState = structuredClone(state);
         if(action.run === undefined){
             state[action.key] = action.val;
@@ -246,10 +248,12 @@ function ImageListContainer(option){
     <section className="mb-5">
         {/** Category Container */}
         <div className="d-flex flex-wrap gap-2">
-            <button className={`btn ${ButtonIsSelectedColor}`} onClick={()=>{
-                imgUpcast( {run:'selectCat', val:Category.id} );
-                imgUpcast( {run:'selectCatFlats', val:getCatPathFlat([option.categories])} );
-            }}>{Category.name}</button>
+            <div className="">
+                <button className={`btn ${ButtonIsSelectedColor}`} onClick={()=>{
+                    imgUpcast( {run:'selectCat', val:Category.id} );
+                    imgUpcast( {run:'selectCatFlats', val:getCatPathFlat([option.categories])} );
+                }}>{Category.name}</button>
+            </div>
             {CategoryChild ? <CategoryContainer categories={CategoryChild} caster={[imgCast, imgUpcast]}  /> : ""  }
         </div>
         {/** Image Container */}
@@ -269,6 +273,8 @@ function ImageListContainer(option){
     </section>
     </> 
 }
+
+//This will hold a recursive function to iterate the its neighboring tree of category buttons
 function CategoryContainer(option){
     const Categories = option.categories;
     const [ImgCast, ImgUpcast] = option.caster;
@@ -297,7 +303,7 @@ function CategoryContainer(option){
     }, [c_selectedIndex, c_spreadTree, s_spreadTree, ImgCast, ImgUpcast]);
 
     return <>
-        <div className="d-flex align-items-center">
+        <div className="d-flex">
             <span className="fw-lighter h3 p-0 m-0">\</span>
         </div>
         <div className="btn-group-vertical" role="group" aria-label="CategoryTree Buttons">
@@ -346,18 +352,17 @@ function ImageCardContainer(option){
     const content = useMemo(()=>{
         if(thisCast.listView == "compact")
             return Title;
-        const dateMe = new Date(Uploaded);
         return <>
             <h4 className="text-break word-wrap">{Title}</h4>
-            <small className="mb-0 ">Uploaded: <span className="text-secondary">{dateMe.getFullYear()}, {dateMe.getMonth()}-{dateMe.getDate()} | {dateMe.getHours()}:{dateMe.getMinutes()}</span> </small>
+            <small className="mb-0 ">Uploaded: <span className="text-secondary">{transformDate(Uploaded)}</span> </small>
         </>
     }, [thisCast.listView, Title]);
 
 
     return <div className="card overflow-hidden" aria-hidden="true" style={cardStyle}>
         <div className={`position-relative ${insideContainer} w-100 h-100`}>
-            <div className={`position-relative ${imageClass1} overflow-hidden my-pointer`}  style={{aspectRatio: "1/1"}}>
-                <img src={Image} className="w-100 h-100 position-relative  object-fit-cover" style={{objectPosition: "top center"}} alt={`imageOf${Title}`}></img>
+            <div className={`position-relative ${imageClass1} overflow-hidden my-pointer`}  style={{aspectRatio: "1/1"}} onClick={()=>navigation(`view_image/${Id}`)} >
+                <img src={ApiImageLink(Image)} className="w-100 h-100 position-relative  object-fit-cover bg-secondary" style={{objectPosition: "top center", minHeight: "200px"}} alt={`imageOf${Title}`}></img>
             </div>
             
             <div className="p-2 ">

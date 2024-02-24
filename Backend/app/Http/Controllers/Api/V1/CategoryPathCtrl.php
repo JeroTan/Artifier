@@ -9,6 +9,7 @@ use App\Models\Category;
 use App\Models\CategoryPath;
 use App\Models\Image;
 use App\Models\ImageCategoryPaths;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -21,8 +22,8 @@ class CategoryPathCtrl extends Controller
     {
         $user = Auth::user();
         $image = Image::select('id')->where('user_id', $user->id);
-        $image_category_paths = ImageCategoryPaths::select('category_path_id')->where('image_id', $image);
-        $category_path = CategoryPath::with('category')->where('id', $image_category_paths)->get()->toArray();
+        $image_category_paths = ImageCategoryPaths::select('category_path_id')->whereIn('image_id', $image);
+        $category_path = CategoryPath::with('category')->whereIn('id', $image_category_paths)->get()->toArray();
 
         $ownCategory = new OwnCategory;
         return response()->json($ownCategory->getPathTree($category_path), 200);

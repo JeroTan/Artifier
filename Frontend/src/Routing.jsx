@@ -9,12 +9,13 @@ import { UpdateImage } from "./Pages/Gallery/Update";
 import Gatekeeper from "./Gatekeeper"
 
 //Hooks
-import { BrowserRouter, Routes, Route } from "react-router-dom"
+import { HashRouter, BrowserRouter, Routes, Route } from "react-router-dom"
+import View from "./Pages/Gallery/View";
 
 
 
 export default()=>{
-    return <BrowserRouter>
+    return <HashRouter>
         <Routes>
             
             <Route path="/*" element={ 
@@ -47,6 +48,12 @@ export default()=>{
                 </Gatekeeper>
             } />
 
+            <Route path="/view_image/:id" element={
+                <Gatekeeper type="needAuthentication">
+                    <View />
+                </Gatekeeper>
+            }/>
+
             <Route path="/update_image/" element={ 
                 <Gatekeeper type="needAuthentication">
                     <UpdateImage />
@@ -54,5 +61,5 @@ export default()=>{
             } />
 
         </Routes>
-    </BrowserRouter>
+    </HashRouter>
 }

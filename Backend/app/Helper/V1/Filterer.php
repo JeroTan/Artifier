@@ -136,12 +136,12 @@ class Filterer{
         $transformedFilter = []; //id and query
         foreach($this->relationParameter as $column){
 
-            $data = $request->query($column);
+            $data = $request->query($column);//Check if Query does exist
             if(!$data){
                 continue;
             }
 
-            $queruring = $this->relationMapper[$column];
+            $queruring = $this->relationMapper[$column];//Get all the query data for the table relationship
             $data = explode(",", $data);
             $table = new $queruring['table'];
 

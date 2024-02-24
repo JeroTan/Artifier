@@ -24,4 +24,7 @@ class Category extends Model
     public function categoryPath(){
         return $this->hasMany(CategoryPath::class);
     }
+    public function image(){
+        return $this->belongsToMany(Image::class, 'image_category_paths', 'category_path_id', 'image_id');
+    }
 }

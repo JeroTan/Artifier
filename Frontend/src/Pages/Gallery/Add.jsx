@@ -3,7 +3,7 @@ import Pageplate from "../../Utilities/Pageplate"
 import Icon from "../../Utilities/Icon";
 import { randomizer } from "../../Helper/Math";
 import { InlineLoading, TextLoading } from "../../Helper/Placholder";
-import { ApiApplyNewCategory, ApiGetPathSuggestion } from "../../Helper/Api";
+import { ApiApplyNewCategory, ApiGetPathSuggestion, ApiLinkImageCategory, ApiUploadImageData } from "../../Helper/Api";
 import { getCatPathFlat, getCatPathFlatData } from "../../Helper/RyouikiTenkai";
 
 const Gbl_AddImage = createContext();
@@ -141,6 +141,18 @@ const AddInstance = (option)=>{
                     refState.v_error.categoryPaths[e].message = "You have inputted an invalid category path.";
                 });
             break;
+            case 'addError':
+                refState.v_error[action.val] = `There is something wrong with the ${action.val}.`;
+            break;
+            case 'removeErrorPath':
+                if(refState.v_error.categoryPaths[action.val].message)
+                    refState.v_error.categoryPaths[action.val].message = undefined;
+            break;
+            case 'removeError':
+                if(refState.v_error[action.val])
+                    refState.v_error[action.val] = undefined;
+            break;
+            
         }
         return refState;
     }, {
@@ -157,6 +169,7 @@ const AddInstance = (option)=>{
             image:undefined,
             title:undefined,
             description:undefined,
+            categoryPathId:undefined,
             categoryPaths:[
                 {id:1, message:undefined}
             ]
@@ -172,22 +185,41 @@ const AddInstance = (option)=>{
             async function runUpload(){
                 const d = await ApiApplyNewCategory(InstCast.v_data.categoryPaths);
                 let d2;
-                let d3;
-                if(d.status == '422'){
+                if(d.status != '200'){
                     UpdateStatus("error");
                     NextQueue();
-                    const errorList  = Object.keys(d.data.errors).map((x)=>{
-                        return x.split('.')[0];
-                    });
-                    InstUpcast({run:'addErrorPath', val:errorList});
+                    if(d.status == "422"){
+                        const errorList  = Object.keys(d.data.errors).map((x)=>{
+                            return x.split('.')[0];
+                        });
+                        InstUpcast({run:'addErrorPath', val:errorList});
+                    }
                     return false;
                 }else{
-                    d2 = true; //Upload Image first   
+                    const formData = new FormData();
+                    formData.append("image", InstCast.v_data.image);
+                    formData.append("title", InstCast.v_data.title);
+                    formData.append("description", InstCast.v_data.description);
+                    formData.append("categoryPathId", JSON.stringify(d.data) );
+                    d2 = await ApiUploadImageData( formData ); //Upload Image first   
                 }
-                console.log(d);
-
+                
+                if(d2.status != '200'){
+                    UpdateStatus("error");
+                    NextQueue();
+                    if(d.status == "422"){
+                        Object.keys(d2.data.errors).forEach((e)=>{
+                            const field = e.split('.')[0];
+                            InstUpcast({run:'addError', val:field});
+                        });
+                    }
+                }else{
+                    UpdateStatus("success");
+                    NextQueue();
+                }
             }
         }
+
     }, [QueueList, NextQueue]);
 
 
@@ -242,6 +274,7 @@ function ImageAddContainer(option){
                 InstUpcast({run:"closeImage"})
                 InstUpcast({run:"closePreview"});
             }
+            InstUpcast({run:'removeError', val:'image'});
         }}  />
         { InstCast.preview ? <>
         <div className="position-relative d-flex overflow-hidden my-pointer" style={{minWidth: "25rem"}} onClick={()=>{
@@ -269,7 +302,10 @@ function ImageAddContainer(option){
         </>}
         
     </div>
-    <small className="text-danger text-center">{InstCast.v_error.image}</small>
+    <div className="d-flex justify-content-center">
+        <small className="text-danger text-center">{InstCast.v_error.image}</small>
+    </div>
+    
     </>
 }
 
@@ -297,6 +333,7 @@ function DescriptionAddContainer(option){
             <label htmlFor="v_title" className="form-label">Title</label>
             <input type="text" className="form-control" id="v_title" placeholder={RandSearchPlaceholder} onInput={(e)=>{
                 InstUpcast({run:"updateTitle", val:e.target.value});
+                InstUpcast({run:'removeError', val:'title'});
             }} />
             <small className="text-danger text-center">{InstCast.v_error.title}</small>
         </div>
@@ -304,6 +341,7 @@ function DescriptionAddContainer(option){
             <label htmlFor="v_description" className="form-label">Description</label>
             <textarea className="form-control" id="v_description" rows="3" placeholder="Lorem ipsum dolor sit amet consectetur . . ." onInput={(e)=>{
                 InstUpcast(  {run:"updateDescription", val: JSON.stringify(e.target.value.split('\n')) }  );
+                InstUpcast({run:'removeError', val:'description'});
             }} ></textarea>
             <small className="text-danger text-center">{InstCast.v_error.description}</small>
         </div>
@@ -400,6 +438,7 @@ function CategoryPathAddInstance(option){
             }}
             onInput={(e)=>{
                 QuerySuggestions(e.target.value);
+                InstUpcast({run:'removeErrorPath', val:Index});
             }}
             />
         <button type="button" className="btn btn-outline-secondary" aria-label="Close" onClick={()=>{

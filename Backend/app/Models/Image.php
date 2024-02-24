@@ -32,5 +32,8 @@ class Image extends Model
     public function imageCategoryPaths(){
         return $this->hasMany(ImageCategoryPaths::class);
     }
+    public function categoryPath(){
+        return $this->belongsToMany(CategoryPath::class, 'image_category_paths', 'image_id', 'category_path_id', 'id');
+    }
 
 }

@@ -3,20 +3,24 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Helper\V1\FFQuery;
+use App\Helper\V1\Filer;
 use App\Helper\V1\FilterImage;
+use App\Helper\V1\OwnCategory;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\V1\ImageAddMultiReq;
 use App\Http\Requests\V1\ImageAddReq;
 use App\Http\Requests\V1\ImageUpdReq;
 use App\Http\Resources\V1\ImageRes;
+use App\Models\CategoryPath;
 use App\Models\Image;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class ImageCtrl extends Controller
 {
     public function __invoke()
     {
-        return Image::all();
+        return Image::all()->toArray();
     }
 
 
@@ -52,8 +56,24 @@ class ImageCtrl extends Controller
      */
     public function store(ImageAddReq $request)
     {
-        return new ImageRes( Image::create($request->all()) );
+
+        $image = new Image;
+        $image->user_id = $request->user_id;
+        $image->title = $request->title;
+        $image->description = $request->description;
+        $image->save();
+
+        $filer = new Filer;
+        $image->image = $filer->id($image->id)->name($image->title)->file($request->image)->path("gallery/")->uploadFile(true);
+        $image->save();
+
+        // $image->refresh();
+        $image->categoryPath()->attach($request->category_path_id);
+        // $image->load('categoryPath');
+        return response()->json($image->categoryPath, 200);
     }
+
+
     public function storeMulti(ImageAddMultiReq $request){
         $reviseData = collect($request->all())->map(function($val){
             return array_filter($val, function($key){
@@ -70,9 +90,16 @@ class ImageCtrl extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
-    {
-        return new ImageRes(Image::find($id));
+    public function show(string $id){
+        $image = Image::find($id);
+
+        $pathfinder = new OwnCategory;
+        $tempPath = array_map(fn($val)=>$val['id'], $image->categoryPath->toArray());
+        $tempPath = CategoryPath::with('category')->whereIn('id', $tempPath)->get()->toArray();
+        $categoryPath = $pathfinder->getPath($tempPath );
+
+        $image = [...$image->toArray(), "categoryPath"=>$categoryPath];
+        return new ImageRes( $image );
     }
 
     /**

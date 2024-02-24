@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Category;
 use App\Models\CategoryPath;
 use App\Models\Image;
+use App\Models\ImageCategoryPaths;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -18,9 +19,13 @@ class CategoryCtrl extends Controller
      */
     public function index()
     {
-        $categoring = new OwnCategory;
+        $user = Auth::user();
+        $image = Image::select('id')->where('user_id', $user->id);
+        $image_category_paths = ImageCategoryPaths::select('category_path_id')->whereIn('image_id', $image);
+        $category_path = CategoryPath::whereIn('id', $image_category_paths)->get()->toArray();
 
-        return response()->json($categoring->get(), 200);
+        $categoring = new OwnCategory;
+        return response()->json($categoring->get($category_path), 200);
 
     }
 
