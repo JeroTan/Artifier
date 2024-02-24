@@ -39,8 +39,14 @@ export default (option)=>{
             <div className="card-body">
                 {v_data ? <>
 
-                    <h5 className="card-title">{v_data.title}</h5>
-
+                    <div className="d-flex flex-wrap">
+                        <h5 className="card-title me-auto">{v_data.title}</h5>
+                        <button className="btn btn-sm btn-outline-primary d-flex gap-1 align-items-center">
+                            <Icon name="edit" inClass="my-fill-primary" outClass="my-h-5 my-w-5" />
+                            <span>Edit</span>
+                        </button>
+                    </div>
+                    
                     { v_data.description.map( (x, i)=><p key={i} className="card-text">{x}</p> ) }
 
                     <ul className="list-group list-group-flush mx-0 mt-4">
