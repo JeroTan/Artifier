@@ -13,7 +13,9 @@ use App\Http\Requests\V1\ImageUpdReq;
 use App\Http\Resources\V1\ImageRes;
 use App\Models\CategoryPath;
 use App\Models\Image;
+use App\Models\ImageCategoryPaths;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 
 class ImageCtrl extends Controller
@@ -91,7 +93,11 @@ class ImageCtrl extends Controller
      * Display the specified resource.
      */
     public function show(string $id){
-        $image = Image::find($id);
+
+        $image = Image::where('id', $id)->where('user_id', Auth::user()->id)->first();
+        if(!$image){
+            return response()->json("Unauthorized Access!", 401);
+        }
 
         $pathfinder = new OwnCategory;
         $tempPath = array_map(fn($val)=>$val['id'], $image->categoryPath->toArray());
@@ -113,12 +119,20 @@ class ImageCtrl extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(ImageUpdReq $request, string $id)
+    public function update(ImageUpdReq $request)
     {
+        $image = Image::where('id', $request->image_id)->where('user_id', Auth::user()->id)->first();
+        if(!$image){
+            return response()->json("Unauthorized Access!", 401);
+        }
+        $image->title = $request->title;
+        $image->description = $request->description;
+        $image->save();
 
-        $image = Image::find($id);
+        $image->categoryPath()->detach();
+        $image->categoryPath()->attach($request->category_path_id);
 
-        return $image->update($request->all());
+        return response()->json($image->categoryPath, 200);
     }
 
     /**
@@ -126,6 +140,12 @@ class ImageCtrl extends Controller
      */
     public function destroy(string $id)
     {
-        //
+        $image = Image::where('id', $id)->where('user_id', Auth::user()->id)->first();
+        $image->categoryPath()->detach();
+        $filer = new Filer;
+        $filer->name($image->image)->path('gallery/')->deleteFile();
+        $image->delete();
+
+        return response()->json("Image is deleted successfully", 200);
     }
 }

@@ -5,6 +5,7 @@ import { randomizer } from "../../Helper/Math";
 import { InlineLoading, TextLoading } from "../../Helper/Placholder";
 import { ApiApplyNewCategory, ApiGetPathSuggestion, ApiLinkImageCategory, ApiUploadImageData } from "../../Helper/Api";
 import { getCatPathFlat, getCatPathFlatData } from "../../Helper/RyouikiTenkai";
+import { Link } from "react-router-dom";
 
 const Gbl_AddImage = createContext();
 const Gbl_AddInstance = createContext();
@@ -207,7 +208,7 @@ const AddInstance = (option)=>{
                 if(d2.status != '200'){
                     UpdateStatus("error");
                     NextQueue();
-                    if(d.status == "422"){
+                    if(d2.status == "422"){
                         Object.keys(d2.data.errors).forEach((e)=>{
                             const field = e.split('.')[0];
                             InstUpcast({run:'addError', val:field});
@@ -242,7 +243,7 @@ const AddInstance = (option)=>{
             <div className="me-auto"> <span className="fw-bolder">#{Index+1}</span>  <span className={TextStatusClass}>{Status} . . .</span> </div>
             <button type="button" className="btn-close" aria-label="Close" onClick={DeleteMe} ></button>
         </div>
-        <div className={`${Status=='processing' ? "d-none" :""}`}>
+        <div className={`${Status=='processing' || Status=='success' ? "d-none" :""}`}>
             <ImageAddContainer />
             <DescriptionAddContainer />
             <CategoryPathAddContainer />
@@ -250,12 +251,21 @@ const AddInstance = (option)=>{
         <div className={`${Status=='processing' ? "" :"d-none"} py-5`}>
             <TextLoading title="Processing" subtitle="Please wait for a while, we are uploading your content." />
         </div>
+        <div className={`${Status=='success'? "" : "d-none" }`}>
+            <div className="my-5 d-flex flex-column align-items-center">
+                <h3 className="text-center mb-0">
+                    Image was added to the gallery.
+                </h3>
+                <small className="text-secondary text-center"> Back to the <Link to={`/`}>homepage</Link>. </small>
+            </div>
+            
+        </div>
         
     </main>
     </Gbl_AddInstance.Provider>
     </>
 }
-
+//The Actual Container of image like input files and preview of the image
 function ImageAddContainer(option){
     //Global
     const [ InstCast, InstUpcast ] = useContext(Gbl_AddInstance);

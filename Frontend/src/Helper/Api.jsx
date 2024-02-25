@@ -134,8 +134,14 @@ export async function ApiApplyNewCategory(data){
 export async function ApiUploadImageData(formData){
     return await ApiRequestPlate('post', 'image', formData, true);
 }
+export async function ApiUpdateImageData(data, imageId){
+    return await ApiRequestPlate('patch', 'image/'+imageId, data);
+}
 export async function ApiLinkImageCategory(data){
     return await ApiRequestPlate('post', 'image_category_paths', data);
+}
+export async function ApiDeleteImage(id){
+    return await ApiRequestPlate('delete', 'image/'+id);
 }
 ///<<< Image Upload and Editing
 

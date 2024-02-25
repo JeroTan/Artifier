@@ -1,3 +1,4 @@
+import { ApiDeleteImage } from "./Api";
 
 
 export function popLoginVerifying(Upcast){
@@ -59,3 +60,40 @@ export function popSignupError(Upcast){
         data: "Please try again later and double-check your credentials . .",
     }});
 }
+
+export function popImage(Upcast, link){
+    console.log(link);
+    Upcast({run:'setAll', val:{
+        isOpen: true,
+        type: 'imageDisplay',
+        title: "",
+        width: "100%",
+        data: link,
+        allowButton: false,
+        canClose: true,
+
+    }});
+}
+
+export function popDeleteImageWarning(Upcast, title, confirmCallback = ()=>{}){
+    Upcast({run:'setAll', val:{
+        isOpen: true,
+        type: 'warning',
+        title: `Delete Warning`,
+        data: `Are you sure you want to delete this image "${title}"? This action is irreversible, are you sure?`,
+        confirmCallback: ()=>{
+            confirmCallback(Upcast);
+        },
+    }});
+}
+
+export function popDeleteProcessing(Upcast){
+    Upcast({run:'setAll', val:{
+        isOpen: true,
+        type: 'loading',
+        title: "Deleting",
+        data: "Please wait for a while. . .",
+        canClose: false,
+    }});
+}
+

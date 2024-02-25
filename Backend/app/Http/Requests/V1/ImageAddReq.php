@@ -36,8 +36,8 @@ class ImageAddReq extends FormRequest
     protected function prepareForValidation()
     {
         $this->merge([
-            'user_id'=>Auth::user()->id,
-            'description'=>$this->input('description')  === null ? [] : json_decode($this->input('description'), true),
+            'user_id'=>auth()->user()->id,
+            'description'=>$this->input('description') === null ? [] : json_decode($this->input('description'), true),
             'categoryPathId'=>$this->input('categoryPathId') === null ? [] : json_decode($this->input('categoryPathId', true))
         ]);
     }

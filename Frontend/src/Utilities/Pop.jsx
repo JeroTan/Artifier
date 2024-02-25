@@ -11,7 +11,7 @@ export function PopTemplate(option){
     const IsOpen = Broadcast.isOpen;
     const CanClose = Broadcast.canClose;
     const AllowButton = Broadcast.allowButton;
-
+    const Width = Broadcast.width ?? "34rem";
 
     //Components
     //>>>>>>>>>>TEMPLATE
@@ -37,7 +37,7 @@ export function PopTemplate(option){
         }
     }, [IsOpen]);
 
-    return <dialog ref={Ref} className="my-dialog border rounded-3" onClick={(e)=>{
+    return <dialog ref={Ref} className="my-dialog border rounded-3" style={{width: Width}} onClick={(e)=>{
         if (e.target === Ref.current && CanClose) {
             Upcast({run:'close'});
         }
@@ -109,6 +109,44 @@ function PopError(option){
     }} />
 }
 
+function PopWarning(option){
+    // Global
+    const [Broadcast, Upcast] = useContext(Gbl_Modal);
+    const Title = Broadcast.title;
+    const Data = Broadcast.data;
+    const ConfirmCallback = Broadcast.confirmCallback;
+    const CloseCallback = Broadcast.closeCallback;
+
+    const Content = useMemo(()=>{
+        return <div className="w-100">
+            <div className="d-flex justify-content-center">
+                <Icon name="cross" outClass="my-w-10 my-h-10" inClass="my-fill-danger" />
+            </div>
+            <h3 className="text-center">{Title}</h3>
+            <p className="text-center text-break text-secondary">{Data}</p>
+        </div>
+    }, [Title, Data]);
+
+    const Button = useMemo(()=>{
+        return <div className="d-flex justify-content-center gap-2">
+            <button type="button" className="btn btn-danger" onClick={()=>{
+                ConfirmCallback();
+            }}>
+                Yes
+            </button>
+            <button type="button" className="btn btn-outline-secondary" onClick={()=>{
+                CloseCallback();
+                Upcast({run:'close'});
+            }}>No</button>
+        </div>
+    }, []);
+
+    return <PopTemplate data={{
+        Content: Content,
+        Button: Button,
+    }} />
+}
+
 function PopLoading(option){
     // Global
     const [Broadcast, Upcast] = useContext(Gbl_Modal);
@@ -131,8 +169,35 @@ function PopLoading(option){
     }} />
 }
 
-function PopBlank(option){
+function PopImageDisplay(option){
+    // Global
+    const [Broadcast, Upcast] = useContext(Gbl_Modal);
+    const Data = Broadcast.data ?? "#";
+    const Content = useMemo(()=>{
+        return <>
+            <div className="position-relative w-100 mt-2">
+                <img className="position-relative w-100 h-100 object-fit-contain bg-secondary my-pointer" alt="imageFromGallery" style={{minHeight: "30rem"}} src={Data} 
+                    onClick={()=>{
+                        window.open(Data, '_blank').focus();
+                    }}
+                />
+            </div>
+        </>
+    })
+    return <PopTemplate data={{
+        Content: Content,
+        Button: "",
+    }} />
+}
 
+function PopBlank(option){
+    // Global
+    const [Broadcast, Upcast] = useContext(Gbl_Modal);
+
+    return <PopTemplate data={{
+        Content: Broadcast.data,
+        Button: <></>
+    }} /> 
 }
 
 export function PopEntryPoint(){
@@ -148,10 +213,15 @@ export function PopEntryPoint(){
                 return <PopSuccess />
             case 'error':
                 return <PopError />
+            case 'warning':
+                return <PopWarning />
             case 'loading':
                 return <PopLoading />
+            case 'imageDisplay':
+                return <PopImageDisplay />
             case 'blank':
                 return <PopBlank />
+            
             default:
                 return <PopBlank />
         }

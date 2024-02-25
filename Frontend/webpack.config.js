@@ -48,7 +48,7 @@ module.exports = {
         path: path.resolve(__dirname, "dist/"),         // This is where they use path chu chu to resolve the path
         publicPath: "/dist/",                           // Tell where all the files will go well literall same as above idk
         filename: "bundle.js",
-        mimetype: 'application/javascript'
+        // mimetype: 'application/javascript'
     },
 
     devServer: {

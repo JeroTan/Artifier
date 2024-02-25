@@ -41,6 +41,13 @@ class Filer{
         return $returnName ? $this->newFilename : $this;
     }
 
+    public function deleteFile(){
+        if( Storage::disk('public')->exists($this->path.$this->name) ){
+            Storage::disk('public')->delete($this->path.$this->name);
+        }
+        return true;
+    }
+
     public function getNewName(){
         return $this->newFilename;
     }

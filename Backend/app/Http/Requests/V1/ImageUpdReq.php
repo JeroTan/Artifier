@@ -4,6 +4,7 @@ namespace App\Http\Requests\V1;
 
 use App\Helper\V1\KeyConverter;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Facades\Auth;
 
 class ImageUpdReq extends FormRequest
 {
@@ -22,45 +23,30 @@ class ImageUpdReq extends FormRequest
      */
     public function rules(): array
     {
-
-        $methodUsed = $this->method();
-        $rules = [
-            'userId'=>["required"],
-            'title'=>["required"],
-            'description'=>["required"],
-            'image'=>["required"],
+        return [
+            'imageId'=>'required|exists:image,id',
+            'title'=>'required|max:256',
+            'description'=>'array',
+            'description.*'=>'nullable|string',
+            'categoryPathId'=>"required|array|min:1",
+            "categoryPathId.*"=>"required|exists:category_path,id",
         ];
-
-
-        if($methodUsed == 'PATCH'){
-            foreach($rules as $key => $val){
-                $rules[$key] = ["sometimes", ...$val];
-            };
-        }
-
-        return $rules;
     }
 
     protected function prepareForValidation()
     {
+        $this->merge([
+            'categoryPathId'=>$this->input('categoryPathId') === null ? [] : json_decode($this->input('categoryPathId', true))
+        ]);
+    }
 
-        $methodUsed = $this->method();
-        $merger = [
-            'user_id'=>false,
-        ];
-        $kChange = new KeyConverter;
-
-        foreach($merger as $key => $val){
-            if( $methodUsed == 'PATCH' || $this->input( $kChange->fromSnakeCase($key)->toCamelCase() ) != null ){
-                $queryKey =  $kChange->fromSnakeCase($key)->toCamelCase();
-                $merger[$key] = $this->$queryKey ;
-            }else{
-                unset($merger[$key]);
-            }
-        }
-
-
-        if($merger)
-            $this->merge($merger);
+    protected function passedValidation()
+    {
+        $this->replace([
+            'description' => json_encode($this->description),
+            'title' => $this->title,
+            'category_path_id' => $this->categoryPathId,
+            'image_id'=>$this->imageId,
+        ]);
     }
 }

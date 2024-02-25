@@ -293,8 +293,8 @@ function CategoryContainer(option){
 
     //Componet
     const ButtonComp = useCallback((catData, pathData)=>{
-        const buttonColorBootstrap = ImgCast.selectedTree == catData.id ? "btn-secondary" : "btn-outline-secondary"; ////THE ERROR IS HERE
-        const revampStyle = ImgCast.selectedTree == catData.id ? {backgroundColor: catData.color, borderColor: catData.color} : { borderColor: catData.color };
+        const buttonColorBootstrap = ImgCast.selectedTree == pathData.id ? "btn-secondary" : "btn-outline-secondary"; ////THE ERROR IS HERE
+        const revampStyle = ImgCast.selectedTree == pathData.id ? {backgroundColor: catData.color, borderColor: catData.color} : { borderColor: catData.color };
         return <button className={`btn ${buttonColorBootstrap}`} type="button" onClick={()=>{
             s_spreadTree(prev=>!prev);
             ImgUpcast({run:'selectCat',val:pathData.id});

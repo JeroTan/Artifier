@@ -2,7 +2,6 @@
 
 use App\Http\Controllers\Api\V1\CategoryCtrl;
 use App\Http\Controllers\Api\V1\CategoryPathCtrl;
-use App\Http\Controllers\Api\V1\ImageCategoryPathsCtrl;
 use App\Http\Controllers\Api\V1\ImageCtrl;
 use App\Http\Controllers\Api\V1\LoginCtrl;
 use App\Http\Controllers\Api\V1\SignupCtrl;
@@ -26,7 +25,7 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 
 Route::prefix('v1')->namespace("App\Http\Controllers\Api\V1")->group(function(){
     // Route::get('image', ImageCtrl::class);
-    Route::apiResource('image', ImageCtrl::class);
+    Route::apiResource('image', ImageCtrl::class)->middleware('auth:sanctum');
     Route::post('image/multi', [ImageCtrl::class, 'storeMulti'])->middleware('autt:sanctum');
 
     Route::post('login', [LoginCtrl::class, 'loginUser']);
