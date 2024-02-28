@@ -11,6 +11,7 @@ import Gatekeeper from "./Gatekeeper"
 //Hooks
 import { HashRouter, BrowserRouter, Routes, Route } from "react-router-dom"
 import View from "./Pages/Gallery/View";
+import Settings from "./Pages/Settings";
 
 
 
@@ -57,6 +58,12 @@ export default()=>{
             <Route path="/update_image/" element={ 
                 <Gatekeeper type="needAuthentication">
                     <UpdateImage />
+                </Gatekeeper>
+            } />
+
+            <Route path="/settings/" element={ 
+                <Gatekeeper type="needAuthentication">
+                    <Settings />
                 </Gatekeeper>
             } />
 

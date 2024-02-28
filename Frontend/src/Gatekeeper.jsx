@@ -2,6 +2,7 @@ import { Suspense, useCallback, useEffect, useState } from "react";
 import { Navigate, useNavigate } from "react-router-dom";
 import PageLoader from "./Utilities/PageLoader";
 import { ApiVerify } from "./Helper/Api";
+import PageError from "./Utilities/PageError";
 
 
 const gatepolice = {
@@ -25,33 +26,32 @@ const gatepolice = {
 
 export default (option)=>{
     const Content = option.children;
-    const Type = option.type;
+    const Rule = option.type;
     const [c_verifying, s_verifying] = useState(true);
-
+    const [c_error, s_error] = useState(true);
 
     const helper = {
         navigation: useNavigate(),
     }
     useEffect(()=>{
-        if( typeof Type === "array"){
-            for(let i = 0; i < Type.length; i++){
-                if(!gatepolice[Type[i]](helper))
-                    break;
+        if( typeof Rule === "array"){
+            if(Rule.every(x=> gatepolice[x](helper))){
+                s_error(false);
             }
-            
-            s_verifying(false);
         }else{
-            gatepolice[Type](helper);
-            s_verifying(false);
+            if(gatepolice[Rule](helper)){
+                s_error(false);
+            }
         }
-        
-    }, []);
+            
+        s_verifying(false);
+    }, [s_error, s_verifying]);
 
     return <>
-        { c_verifying ? <PageLoader /> : <>
-        <Suspense fallback={<PageLoader/>}>
-            {Content}
-        </Suspense>
-        </> }
+        { c_verifying ? <PageLoader /> : (
+            c_error ? <PageError /> : <>
+                {Content}
+            </>
+        ) }
     </>
 }

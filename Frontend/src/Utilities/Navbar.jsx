@@ -93,7 +93,7 @@ export default()=>{
                         </li>
                         
                         <li className="nav-item">
-                            <a className="nav-link" href="#">Settings</a>
+                            <Link className="nav-link" to="/settings">Settings</Link>
                         </li>
                         {LogoutButton}
                         

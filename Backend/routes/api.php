@@ -5,6 +5,7 @@ use App\Http\Controllers\Api\V1\CategoryPathCtrl;
 use App\Http\Controllers\Api\V1\ImageCtrl;
 use App\Http\Controllers\Api\V1\LoginCtrl;
 use App\Http\Controllers\Api\V1\SignupCtrl;
+use App\Http\Controllers\Api\V1\UserCtrl;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -36,4 +37,6 @@ Route::prefix('v1')->namespace("App\Http\Controllers\Api\V1")->group(function(){
 
     Route::apiResource('category_path', CategoryPathCtrl::class)->middleware('auth:sanctum');
     Route::get('category_path_suggestion', [CategoryPathCtrl::class, 'pathSuggestion']);
+
+    Route::apiResource('user', UserCtrl::class)->middleware('auth:sanctum');
 });

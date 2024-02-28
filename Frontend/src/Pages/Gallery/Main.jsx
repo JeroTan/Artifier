@@ -4,7 +4,7 @@ import { BlockNoData, CardLoading, InlineLoading } from "../../Helper/Placholder
 import { useNavigate } from "react-router-dom";
 import { ApiGetCategory, ApiGetCategoryPathTree, ApiGetImage, ApiImageLink } from "../../Helper/Api";
 import { Gbl_Settings } from "../../GlobalSettings";
-import { getCatPathFlat } from "../../Helper/RyouikiTenkai";
+import { compareStrings, getCatPathFlat } from "../../Helper/RyouikiTenkai";
 
 const galleryGlobal = {
     listView: "compact",
@@ -82,6 +82,7 @@ export function Gallery(){
 ///>>> MAIN <<<///|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|
 
 ///>Other Components
+//-This is for changing the view of list either compact or spread
 function ListNavigation(){
     const [thisCast, thisUpcast] = useContext(Gbl_Gallery);
 
@@ -108,7 +109,7 @@ function ListNavigation(){
     </div>
     </>
 }
-
+//-Use for changing the filters like selecting what category to use
 function Filters(){
     const [thisCast, thisUpcast] = useContext(Gbl_Gallery);
     const navigation = useNavigate();
@@ -206,8 +207,10 @@ function Filters(){
 
 ///Use to List Images with the image cards and category path list itself
 function ImageListContainer(option){
+    //Above Value
     const Category = option.categories.category;
     const CategoryChild = option.categories.child ?? false;
+    //To Reduce
     const [imgCast, imgUpcast] = useReducer((state, action)=>{//Global data that will be you to select what category is selected
         const refState = structuredClone(state);
         if(action.run === undefined){
@@ -227,7 +230,10 @@ function ImageListContainer(option){
         selectedTree: Category.id,
         selectedFlatList: getCatPathFlat([option.categories]),
     });
-    const [ v_imageList, e_imageList ] = useState(false);
+    //Use State
+    const [ v_imageList, e_imageList ] = useState(false); //Data of Images
+    const [ v_fetching, e_fetching ] = useState(false); //Use as state to show a loading thing if image is fetching
+    const [ v_lastImageListCount, e_lastImageListCount ] = useState(1); //Use to make a placeholder of image list base on the last image list
 
     //<Componets
     const ButtonIsSelectedColor = useMemo(()=>{
@@ -236,13 +242,25 @@ function ImageListContainer(option){
 
     useEffect(()=>{
         let query = "?";
-        if(imgCast.selectedFlatList.length > 0){
+        if(imgCast.selectedFlatList.length > 0)
             query = query+"category_path_id="+imgCast.selectedFlatList.join(',');
-        }
+        
+        e_fetching(true);
         ApiGetImage(query).then((d)=>{
-            e_imageList(d.data.data);
+            const cachedImage = sessionStorage.getItem('cachedImage');
+            const isExistBefore = compareStrings(cachedImage, d.data.data);
+            let updateStorage = false;
+            if(!cachedImage || !isExistBefore)
+                updateStorage = true;
+            
+            if(updateStorage){
+                sessionStorage.setItem('cachedImage', d.data.data);
+                e_imageList(d.data.data);
+                e_lastImageListCount(d.data.data.length);
+            }
+            e_fetching(false);
         })
-    }, [imgCast.selectedFlatList]);
+    }, [imgCast.selectedFlatList, e_imageList, e_fetching]);
 
     return <>
     <section className="mb-5">
@@ -258,8 +276,10 @@ function ImageListContainer(option){
         </div>
         {/** Image Container */}
         <div className="d-flex flex-wrap justify-content-center gap-3 mt-4">
-        { v_imageList == false ? <CardLoading />: 
-        ( v_imageList.length <= 0 ? <BlockNoData title="Nothing To See Here Yet" message="Maybe add more images in this category." /> : v_imageList.map((x)=>{
+        { v_imageList == false || v_fetching ? [...Array(v_lastImageListCount)].map((x,i)=><CardLoading key={i} />) : 
+        ( v_imageList.length <= 0 ? <>
+            <BlockNoData title="Nothing To See Here Yet" message="Maybe add more images in this category." />
+        </> : v_imageList.map((x)=>{
             return <ImageCardContainer key={x.id} data={x} />
         }) )
         }

@@ -145,7 +145,11 @@ export async function ApiDeleteImage(id){
 }
 ///<<< Image Upload and Editing
 
-
-
-
-
+///>>> User
+export async function ApiGetYourInfo(){
+    return await ApiRequestPlate('get', 'user');
+}
+export async function ApiUpdateInfo(val){
+    return await ApiRequestPlate('patch', 'user/x', val);
+}
+///<<< User
