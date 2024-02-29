@@ -4,6 +4,8 @@ import Pageplate from "../Utilities/Pageplate"
 import { ApiGetYourInfo, ApiUpdateInfo } from "../Helper/Api";
 import Icon from "../Utilities/Icon";
 import { TextLoading } from "../Helper/Placholder";
+import lightPreview from "../Images/profileSample_light.jpg";
+import darkPreview from "../Images/profileSample_dark.jpg";
 
 export default ()=>{
     //Global
@@ -81,10 +83,15 @@ export default ()=>{
     //DOMBinding
     const usernameRef = useRef();
     const passwordRef = useRef();
+    const previewImgSrc = useMemo(()=>{
+        if(Theme == "dark")
+            return darkPreview;
+        return lightPreview;
+    }, [Theme]);
     
     //Functions
     const changeTheme = useCallback(()=>{//Use To change the theme
-        Upcast({run: 'change-theme'});
+        Upcast({run: 'changeTheme'});
     }, []);
     const fetchInfo = useCallback(()=>{//Function that will fetch the data to the reducer container
         s_fetching(true);
@@ -150,7 +157,10 @@ export default ()=>{
             <div className="card overflow-hidden">
 
 
-                <div className="position-relative w-100 bg-primary" style={{aspectRatio: 4/1}}>
+                <div className="position-relative w-100 bg-primary overflow-hidden" style={{aspectRatio: 4/1}}>
+                    <div className="position-relative w-100 h-100 overflow-hidden">
+                        <img src={previewImgSrc} className="position-relative w-100 h-100  object-fit-cover" alt={`picturePreview`}></img>
+                    </div>
                     <div className="position-absolute bottom-0 end-0">
                         <h1 className="m-2">{ThisCast.fetchUsername}</h1>
                     </div>

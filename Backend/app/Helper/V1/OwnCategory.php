@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Auth;
 
 class OwnCategory{
 
-    public function get($category_path){
+    public function get($category_path){ //get Only Id
 
         $categoryID =  $this->filterCategory($category_path);
         return Category::whereIn('id',$categoryID)->get()->toArray();

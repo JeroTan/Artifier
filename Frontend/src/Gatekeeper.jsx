@@ -16,6 +16,7 @@ const gatepolice = {
     },
     noAuthentication: (helper)=>{
         const token = localStorage.getItem('token');
+        console.log(token);
         if(token){
             helper.navigation('/');
             return false;

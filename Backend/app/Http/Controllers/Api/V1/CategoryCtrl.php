@@ -26,7 +26,6 @@ class CategoryCtrl extends Controller
 
         $categoring = new OwnCategory;
         return response()->json($categoring->get($category_path), 200);
-
     }
 
 

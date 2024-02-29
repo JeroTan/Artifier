@@ -8,8 +8,8 @@ use App\Models\ImageCategoryPaths;
 class FilterImage extends Filterer {
 
     protected $filterParameter  = [
-        'created_at'=>["lt", "gt", "gte", "lte"],
-        'updated_at'=>["lt", "gt", "gte", "lte"],
+        'created_at'=>["lt", "gt", "gte", "lte", "between"],
+        'updated_at'=>["lt", "gt", "gte", "lte", "between"],
     ];
 
     protected $sortParameter = [

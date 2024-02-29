@@ -48,6 +48,6 @@ export function BlockNoData(option){
 }
 
 export function ImagePlaceholder(option){
-    const Height = option.height ?? 180;
+    const Height = option.height ?? 18*16;
     return <svg className="bd-placeholder-img card-img-top" width="100%" height={Height} xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Placeholder" preserveAspectRatio="xMidYMid slice" focusable="false"><title>Loading Image</title><rect width="100%" height="100%" fill="#868e96"></rect></svg>
 }

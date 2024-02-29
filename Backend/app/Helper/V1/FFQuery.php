@@ -46,8 +46,15 @@ class FFQuery{ //Fast Filter Query - Use to do all filtering and queriying
             return $this;
 
         $opt_filter = $this->FilterRef->transBetween($this->Request);
+
         if($opt_filter){
             foreach($opt_filter as $column => $betweenValue){
+                if(strtotime($betweenValue[0])){
+                    $betweenValue[0] = date($betweenValue[0]);
+                }
+                if(strtotime($betweenValue[1])){
+                    $betweenValue[1] = date($betweenValue[1]);
+                }
                 $this->Query = $this->Query->whereBetween($column, $betweenValue);
             }
         }

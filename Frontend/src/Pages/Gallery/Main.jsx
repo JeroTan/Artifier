@@ -1,25 +1,72 @@
+import { Gbl_Settings } from "../../GlobalSettings";
 import { Suspense, createContext, useCallback, useContext, useState, useEffect, useMemo, useReducer, Fragment } from "react";
+import { useNavigate } from "react-router-dom";
 import Icon from "../../Utilities/Icon";
 import { BlockNoData, CardLoading, InlineLoading } from "../../Helper/Placholder";
-import { useNavigate } from "react-router-dom";
 import { ApiGetCategory, ApiGetCategoryPathTree, ApiGetImage, ApiImageLink } from "../../Helper/Api";
-import { Gbl_Settings } from "../../GlobalSettings";
 import { compareStrings, getCatPathFlat } from "../../Helper/RyouikiTenkai";
+import { transformDate } from "../../Helper/Math";
 
 const galleryGlobal = {
     listView: "compact",
     filterView: false,
-    filterQuery: '?',
+    filterQuery: undefined,
+    f_category: [],
+    f_upload: [],
+    f_modified: [],
+    f_search: "",
+    
     categoryList: [],
     categoryTree: false,
-    cachedImage: '',
-}
+    
+    sortArrayData: { "title":"ASC" },
+    sortQueryData: "title[sort]=ASC",
+};
 
 const galleryChanger = (state, action)=>{
     const refState = structuredClone(state);
     if(action.run === undefined){
         state[action.key] = action.val;
         return refState;
+    }
+
+    function reOrderSort(criteria){
+        const tempNewOrder = refState.sortArrayData[criteria] == "ASC" ? "DESC" : "ASC";
+        delete refState.sortArrayData[criteria];
+
+        const newSort = {};
+        newSort[criteria] = tempNewOrder;
+        Object.keys(refState.sortArrayData).forEach((x,y)=>{
+            newSort[x] = refState.sortArrayData[x];
+        });
+        const newQuerySort = [];
+        Object.keys(newSort).forEach((x,y)=>{
+            newQuerySort.push(`${x}[sort]=${newSort[x]}`);
+        })
+
+        refState.sortArrayData = newSort;
+        refState.sortQueryData = newQuerySort.join("&");
+    }
+
+    function makeQueryFilter(){
+        let query = [];
+        if(refState.f_category.length > 0){
+            query.push("category_path_id="+refState.f_category.join(","));
+        }
+        
+        if(refState.f_upload.length > 0){
+            query.push( `created_at[${refState.f_upload[0]}]=`+encodeURIComponent(refState.f_upload[1].join(",")) );
+        }
+
+        if(refState.f_modified.length > 0){
+            query.push( `updated_at[${refState.f_modified[0]}]=`+encodeURIComponent(refState.f_modified[1].join(",")) );
+        }
+
+        if(refState.f_search != ""){
+            query.push(`search=`+encodeURIComponent(refState.f_search));
+        }
+
+        refState.filterQuery = query.length > 0 ? query.join("&") : undefined;
     }
     
     switch(action.run){
@@ -38,6 +85,29 @@ const galleryChanger = (state, action)=>{
         case 'addCatTree':
             refState.categoryTree = action.val;
         break;
+        case 'toggleTitleSort':
+            reOrderSort("title");
+        break;
+        case 'update':
+            refState.filterQuery = action.val;
+        break;
+        case 'updateCategoryFilter':
+            refState.f_category = action.val;
+            makeQueryFilter();
+        break;
+        case 'updateUploadFilter':
+            refState.f_upload = action.val;
+            makeQueryFilter();
+        break;
+        case 'updateModifiedFilter':
+            refState.f_modified = action.val;
+            makeQueryFilter();
+        break;
+        case 'updateSearchFilter':
+            refState.f_search = action.val;
+            makeQueryFilter();
+        break;
+
     }
     return refState;
 }
@@ -46,6 +116,11 @@ const Gbl_Gallery = createContext();
 
 ///>>> MAIN <<<///|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|_|
 export function Gallery(){
+
+    //>Global
+    const [GblCast, GblUpcast] = useContext(Gbl_Settings);
+    const Search = GblCast.search;
+
     const [thisCast, thisUpcast] = useReducer(galleryChanger, galleryGlobal);
 
     useEffect(()=>{
@@ -53,6 +128,12 @@ export function Gallery(){
             thisUpcast({run:"addCatTree", val:d.data});
         });
     }, []);
+
+    //If search actually exist then update the list into a free flowing list
+    useEffect(() => {
+        thisUpcast({run:"updateSearchFilter", val:Search});
+    }, [Search])
+    
 
     return <Gbl_Gallery.Provider value={[thisCast, thisUpcast]}>
     <main className="my-5">
@@ -66,14 +147,23 @@ export function Gallery(){
 
         <hr />
 
-        <main>
-            {thisCast.categoryTree === false ? <InlineLoading rows={6} /> : (
-                thisCast.categoryTree.length <= 0 ? <> <BlockNoData /> </> : (
-                    thisCast.categoryTree.map( x=>{
-                        return <ImageListContainer key={x.id} categories={x} />
-                    })
-                )
-            )}    
+        <nav className="mt-2 mb-4">
+            <Sorters />
+        </nav>
+
+        <main className="">
+            {thisCast.filterQuery === undefined ? <>
+                {thisCast.categoryTree === false ? <InlineLoading rows={6} /> : (
+                    thisCast.categoryTree.length <= 0 ? <> <BlockNoData /> </> : (
+                        thisCast.categoryTree.map( x=>{
+                            return <ImageListContainer key={x.id} id={x.id} categories={x} sorter={thisCast.sortQueryData} />
+                        })
+                    )
+                )}   
+            </> : <>
+                <ImageListContainerAlternate filterQuery={thisCast.filterQuery} sorter={thisCast.sortQueryData} />
+            </>}
+             
         </main>
 
     </main>
@@ -116,10 +206,17 @@ function Filters(){
 
     //>Filter Data
     const [v_category, e_category] = useState(false);
+    const [v_upload, e_upload] = useState({
+        start: "",
+        end: "",
+    });
+    const [v_modified, e_modified] = useState({
+        start: "",
+        end: "",
+    });
 
-    useEffect(()=>{
+    useEffect(()=>{//Get the category List
         ApiGetCategory().then((d)=>{
-
             e_category(d.data.map((e)=>{
                 const ref = structuredClone(e);
                 ref.checked = false;
@@ -140,6 +237,35 @@ function Filters(){
             return ref;
         });
     }, [v_category, e_category]);
+    const updateFilter = (e)=>{
+        const checkedCategory = v_category.filter(x=>x.checked);
+        if(checkedCategory.length > 0){
+            const checkedCategoryIdOnly = checkedCategory.map(x=>x.id);
+            thisUpcast({run:"updateCategoryFilter", val:checkedCategoryIdOnly});
+        }else{
+            thisUpcast({run:"updateCategoryFilter", val:[]}); 
+        }
+
+        if(v_upload.start && v_upload.end){
+            thisUpcast({run:"updateUploadFilter", val:["between", [v_upload.start, v_upload.end]]});
+        }else if(v_upload.start){
+            thisUpcast({run:"updateUploadFilter", val:["gte", [v_upload.start]]});
+        }else if(v_upload.end){
+            thisUpcast({run:"updateUploadFilter", val:["lte", [v_upload.end]]});
+        }else{
+            thisUpcast({run:"updateUploadFilter", val:[]});
+        }
+
+        if(v_modified.start && v_modified.end){
+            thisUpcast({run:"updateModifiedFilter", val:["between", [v_modified.start, v_modified.end]]});
+        }else if(v_modified.start){
+            thisUpcast({run:"updateModifiedFilter", val:["gte", [v_modified.start]]});
+        }else if(v_modified.end){
+            thisUpcast({run:"updateModifiedFilter", val:["lte", [v_modified.end]]});
+        }else{
+            thisUpcast({run:"updateModifiedFilter", val:[]});
+        }
+    };
 
     //<Changer/Updater
 
@@ -174,11 +300,23 @@ function Filters(){
             <h4>Upload Date:</h4>
             <div className="d-flex gap-2">
                 <div className="form-floating">
-                    <input type="datetime-local" className="form-control" id="uploadFrom" />
+                    <input value={v_upload.start} type="datetime-local" className="form-control" id="uploadFrom" 
+                        onInput={(e)=>e_upload(prev=>{
+                            const ref = structuredClone(prev);
+                            ref.start = e.target.value;
+                            return ref;
+                        })}
+                    />
                     <label htmlFor="floatingInput">From</label>
                 </div>
                 <div className="form-floating">
-                    <input type="datetime-local" className="form-control" id="uploadTo" />
+                    <input value={v_upload.end} type="datetime-local" className="form-control" id="uploadTo" 
+                        onInput={(e)=>e_upload(prev=>{
+                            const ref = structuredClone(prev);
+                            ref.end = e.target.value;
+                            return ref;
+                        })}
+                    />
                     <label htmlFor="floatingInput">To</label>
                 </div>
             </div>
@@ -187,21 +325,123 @@ function Filters(){
             <h4>Modified Date:</h4>
             <div className="d-flex gap-2">
                 <div className="form-floating">
-                    <input type="datetime-local" className="form-control" id="modifiedFrom" />
+                    <input value={v_modified.start} type="datetime-local" className="form-control" id="modifiedFrom" 
+                        onInput={(e)=>e_modified(prev=>{
+                            const ref = structuredClone(prev);
+                            ref.start = e.target.value;
+                            return ref;
+                        })}
+                    />
                     <label htmlFor="floatingInput">From</label>
                 </div>
                 <div className="form-floating">
-                    <input type="datetime-local" className="form-control" id="modifiedTo" />
+                    <input value={v_modified.end} type="datetime-local" className="form-control" id="modifiedTo" 
+                        onInput={(e)=>e_modified(prev=>{
+                            const ref = structuredClone(prev);
+                            ref.end = e.target.value;
+                            return ref;
+                        })}
+                    />
                     <label htmlFor="floatingInput">To</label>
                 </div>
             </div>
         </div>
         <div className="w-100 d-flex justify-content-end flex-wrap gap-2">
-            <button className="btn btn-primary" >Save</button>
+            <button className="btn btn-primary" onClick={updateFilter} >Save</button>
             <button className="btn btn-outline-primary" onClick={ ()=>thisUpcast({run:'closeFilter'}) }  >Cancel</button>
         </div>
 
     </div>
+    </>
+}
+//-Use to sort the list of items in gallery
+function Sorters(){
+    //Global
+    const [thisCast, thisUpcast] = useContext(Gbl_Gallery);
+    const navigation = useNavigate();
+
+    return <>
+        <nav>
+            <button className="btn btn-sm btn-outline-secondary d-flex align-items-center" onClick={()=>thisUpcast({run:"toggleTitleSort"})}>
+                <span className="text-body">Title</span>
+                <Icon name={ thisCast.sortArrayData.title == "ASC" ? "up" : "down" } inClass="my-fill-light my-emphasis" outClass="my-w-5 my-h-5" />
+            </button>
+        </nav>
+    </>
+}
+
+
+//Use To list Image alternatively when there is a fitler used
+function ImageListContainerAlternate(option){
+    //Above Data
+    const FilterQuery = (option.filterQuery?? false) ? "&"+option.filterQuery : "" ;
+    const Sorter = (option.sorter ?? false) ? "&"+option.sorter : "";
+
+    const [ v_imageList, e_imageList ] = useState(false); //Data of Images
+    const [ v_fetching, e_fetching ] = useState(false); //Use as state to show a loading thing if image is fetching
+    const [ v_lastImageListCount, e_lastImageListCount ] = useState(1); //Use to make a placeholder of image list base on the last image list
+    const [ c_loadMore, s_loadMore ]= useState(null); //Use to Identify if there still image left to load;
+
+    //Fetch the Image Hear
+    useEffect(()=>{
+        const query = "?"+FilterQuery+Sorter;
+        
+        if(!v_fetching){
+            e_fetching(true);
+            ApiGetImage(query).then((d)=>{
+                e_imageList(d.data.data);
+                e_lastImageListCount(d.data.data.length > 0 ? d.data.data.length : 1);
+                e_fetching(false);
+                sessionStorage.setItem('cachedImage_filtered', JSON.stringify(d.data.data));
+                s_loadMore(d.data.meta.next_cursor);
+            })
+        }
+    }, [ FilterQuery, Sorter]);
+
+    const fetchMore = useCallback(()=>{
+        const query = "?"+FilterQuery+Sorter+"&cursor="+c_loadMore;
+        if(!v_fetching){
+            e_fetching(true);
+            ApiGetImage(query).then((d)=>{
+                let cachedImage = sessionStorage.getItem('cachedImage_filtered');
+                cachedImage = JSON.parse(cachedImage);
+                cachedImage = [...cachedImage, ...d.data.data];
+                e_imageList(cachedImage);
+                e_lastImageListCount(cachedImage.length>0 ? cachedImage.length : 1);
+                sessionStorage.setItem('cachedImage_filtered', JSON.stringify(cachedImage));
+                s_loadMore(d.data.meta.next_cursor);
+                e_fetching(false);
+            });
+        }
+        
+    }, [ FilterQuery, Sorter, c_loadMore, v_fetching ]);
+
+    return <>
+    <section className="mb-5">
+        {/** Image Container */}
+        <div className="d-flex flex-wrap justify-content-center gap-3 mt-4">
+            { v_imageList === false || v_fetching ? [...Array(v_lastImageListCount)].map((x,i)=><CardLoading key={i} />) : 
+                ( v_imageList.length <= 0 ? <>
+                    <div className="w-100">
+                        <BlockNoData title="Nothing To See Here Yet" message="Maybe add more images in this category." />    
+                    </div>
+                </> : v_imageList.map((x)=>{
+                    return <ImageCardContainer key={x.id} data={x} />
+                }) )
+            }
+                {/** For Mainting Center Start */}
+                <div style={{width: "18rem"}}></div>
+                <div style={{width: "18rem"}}></div>
+                <div style={{width: "18rem"}}></div>
+                <div style={{width: "18rem"}}></div>
+                <div style={{width: "18rem"}}></div>
+        </div>
+        <div className="d-flex justify-content-center">
+            {c_loadMore === null ?<></>:<>
+                <button className="btn btn-outline-primary" onClick={fetchMore}>Load More</button>
+            </>}
+        </div>
+    </section>
     </>
 }
 
@@ -210,6 +450,9 @@ function ImageListContainer(option){
     //Above Value
     const Category = option.categories.category;
     const CategoryChild = option.categories.child ?? false;
+    const Id = option.id;
+    const Sorter = "&"+(option.sorter ?? "");
+    
     //To Reduce
     const [imgCast, imgUpcast] = useReducer((state, action)=>{//Global data that will be you to select what category is selected
         const refState = structuredClone(state);
@@ -234,6 +477,7 @@ function ImageListContainer(option){
     const [ v_imageList, e_imageList ] = useState(false); //Data of Images
     const [ v_fetching, e_fetching ] = useState(false); //Use as state to show a loading thing if image is fetching
     const [ v_lastImageListCount, e_lastImageListCount ] = useState(1); //Use to make a placeholder of image list base on the last image list
+    const [ c_loadMore, s_loadMore ]= useState(null);
 
     //<Componets
     const ButtonIsSelectedColor = useMemo(()=>{
@@ -243,24 +487,45 @@ function ImageListContainer(option){
     useEffect(()=>{
         let query = "?";
         if(imgCast.selectedFlatList.length > 0)
-            query = query+"category_path_id="+imgCast.selectedFlatList.join(',');
+            query = query+"category_path_id="+imgCast.selectedFlatList.join(',')+Sorter;
         
-        e_fetching(true);
-        ApiGetImage(query).then((d)=>{
-            const cachedImage = sessionStorage.getItem('cachedImage');
-            const isExistBefore = compareStrings(cachedImage, d.data.data);
-            let updateStorage = false;
-            if(!cachedImage || !isExistBefore)
-                updateStorage = true;
-            
-            if(updateStorage){
-                sessionStorage.setItem('cachedImage', d.data.data);
+        
+        if(!v_fetching){
+            e_fetching(true);
+            ApiGetImage(query).then((d)=>{
+                sessionStorage.setItem('cachedImage_'+Id, JSON.stringify(d.data.data));
                 e_imageList(d.data.data);
-                e_lastImageListCount(d.data.data.length);
-            }
-            e_fetching(false);
-        })
-    }, [imgCast.selectedFlatList, e_imageList, e_fetching]);
+                e_lastImageListCount(d.data.data.length > 0 ? d.data.data.length : 1);
+                s_loadMore(d.data.meta.next_cursor);
+                e_fetching(false);
+            });
+        }
+        
+        
+    }, [imgCast.selectedFlatList, Sorter]);
+
+    const fetchMore = useCallback(()=>{
+        let query = "?";
+        if(imgCast.selectedFlatList.length > 0)
+            query = query+"category_path_id="+imgCast.selectedFlatList.join(',')+Sorter+"&cursor="+c_loadMore;
+
+        if(!v_fetching){
+            e_fetching(true);
+            ApiGetImage(query).then((d)=>{
+                let cachedImage = sessionStorage.getItem('cachedImage_'+Id);
+                cachedImage = JSON.parse(cachedImage);
+                cachedImage = [...cachedImage, ...d.data.data];
+                e_imageList(cachedImage);
+                e_lastImageListCount(cachedImage.length>0 ? cachedImage.length : 1);
+                sessionStorage.setItem('cachedImage_'+Id, JSON.stringify(cachedImage));
+                s_loadMore(d.data.meta.next_cursor);
+                e_fetching(false);
+                console.group(cachedImage);
+            });
+        }
+        
+    }, [imgCast.selectedFlatList, Sorter, c_loadMore, v_fetching]);
+    
 
     return <>
     <section className="mb-5">
@@ -276,19 +541,26 @@ function ImageListContainer(option){
         </div>
         {/** Image Container */}
         <div className="d-flex flex-wrap justify-content-center gap-3 mt-4">
-        { v_imageList == false || v_fetching ? [...Array(v_lastImageListCount)].map((x,i)=><CardLoading key={i} />) : 
-        ( v_imageList.length <= 0 ? <>
-            <BlockNoData title="Nothing To See Here Yet" message="Maybe add more images in this category." />
-        </> : v_imageList.map((x)=>{
-            return <ImageCardContainer key={x.id} data={x} />
-        }) )
-        }
+            { v_imageList === false || v_fetching ? [...Array(v_lastImageListCount)].map((x,i)=><CardLoading key={i} />) : 
+                ( v_imageList.length <= 0 ? <>
+                    <div className="w-100">
+                        <BlockNoData title="Nothing To See Here Yet" message="Maybe add more images in this category." />    
+                    </div>
+                </> : v_imageList.map((x)=>{
+                    return <ImageCardContainer key={x.id} data={x} />
+                }) )
+            }
             {/** For Mainting Center Start */}
             <div style={{width: "18rem"}}></div>
             <div style={{width: "18rem"}}></div>
             <div style={{width: "18rem"}}></div>
             <div style={{width: "18rem"}}></div>
             <div style={{width: "18rem"}}></div>
+        </div>
+        <div className="d-flex justify-content-center">
+            {c_loadMore === null ?<></>:<>
+                <button className="btn btn-outline-primary" onClick={fetchMore}>Load More</button>
+            </>}
         </div>
     </section>
     </> 

@@ -12,6 +12,7 @@ import Gatekeeper from "./Gatekeeper"
 import { HashRouter, BrowserRouter, Routes, Route } from "react-router-dom"
 import View from "./Pages/Gallery/View";
 import Settings from "./Pages/Settings";
+import Logout from "./Pages/Logout";
 
 
 
@@ -35,6 +36,10 @@ export default()=>{
                 <Gatekeeper type="noAuthentication">
                     <Signup />
                 </Gatekeeper>
+            } />
+
+            <Route path="/logout" element={ 
+                <Logout />  
             } />
 
             <Route path="/image/" element={ 
@@ -61,7 +66,7 @@ export default()=>{
                 </Gatekeeper>
             } />
 
-            <Route path="/settings/" element={ 
+            <Route path="/settings" element={ 
                 <Gatekeeper type="needAuthentication">
                     <Settings />
                 </Gatekeeper>

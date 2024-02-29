@@ -17,7 +17,7 @@ export default ()=>{
     //>Global
     const [Broadcast, Upcast] = useContext(Gbl_Settings);
     const changeTheme = useCallback(()=>{
-        Upcast({run: 'change-theme'});
+        Upcast({run: 'changeTheme'});
     }, []);
     const [ModalCast, ModalUpcast] = useContext(Gbl_Modal);
     const navigation = useNavigate();

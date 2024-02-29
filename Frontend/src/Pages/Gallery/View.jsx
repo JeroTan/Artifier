@@ -230,6 +230,7 @@ function EditDescription(option){
                     imageId: ImageId,
                 }
                 d2 = await ApiUpdateImageData( data, ImageId ); //Upload Image first  
+                console.log(d2);
             }
             if(d2){
                 fetchDataAgain();

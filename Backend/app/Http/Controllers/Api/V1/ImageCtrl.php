@@ -33,14 +33,13 @@ class ImageCtrl extends Controller
     {
         $data = new Image;
 
-
         //-->Filterers
         $opt = new FilterImage;
         $ffq = new FFQuery;
-        $data = $ffq->init($opt, $data, $request)->doAll()->getQuery();
+        $data = $ffq->init($opt, $data, $request)->doAll(true)->getQuery();
         //<--Filterers
 
-        $data = $data->get();
+        $data = $data->cursorPaginate(15);
 
         return ImageRes::collection($data);
     }

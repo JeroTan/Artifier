@@ -86,9 +86,8 @@ export async function ApiSignup(data){
     return await ApiRequestPlate('post', 'signup', data);
 }
 
-export async function ApiTokenReset(navigation, addon = ()=>true){
+export async function ApiTokenReset(addon = ()=>true){
     localStorage.removeItem('token');
-    navigation('/login');
     addon();
 }
 export async function ApiSetToken(d, navigation, addon = ()=>true){

@@ -36,7 +36,8 @@ class ImageUpdReq extends FormRequest
     protected function prepareForValidation()
     {
         $this->merge([
-            'categoryPathId'=>$this->input('categoryPathId') === null ? [] : json_decode($this->input('categoryPathId', true))
+            'categoryPathId'=>$this->input('categoryPathId') === null ? [] : json_decode($this->input('categoryPathId', true)),
+            'description'=>$this->input('description') === null ? [] : $this->input('description'),
         ]);
     }
 

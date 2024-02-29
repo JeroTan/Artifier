@@ -16,8 +16,11 @@ export const changerValue = (state, action)=>{
     }
 
     switch(action.run){
-        case "change-theme":
+        case "changeTheme":
             refState.theme = refState.theme == 'dark' ? 'light' : 'dark';
+        break;
+        case "updateSearch":
+            refState.search = action.val;
         break;
     }
     return refState;

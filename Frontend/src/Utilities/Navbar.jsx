@@ -1,6 +1,6 @@
 // HOOKS
 import { Link, useNavigate } from "react-router-dom";
-import { useMemo, useContext, useCallback } from "react";
+import { useMemo, useContext, useCallback, useState } from "react";
 
 //Components
 import logo from "../Images/logo.svg";
@@ -27,14 +27,21 @@ export default()=>{
         return text[randomizer(0, text.length)] + ". . .";
     }, []);
 
+    //UseState For Search
+    const [ v_search, e_search ] = useState("");
+
     //Helper
     const navigation = useNavigate();
 
     //>Global
     const [Broadcast, Upcast] = useContext(Gbl_Settings);
     const changeTheme = useCallback(()=>{
-        Upcast({run: 'change-theme'});
+        Upcast({run: 'changeTheme'});
     }, []);
+    const updateSearch = useCallback((e)=>{
+        e.preventDefault();
+        Upcast({run: "updateSearch", val: v_search});
+    }, [v_search]);
 
     //Components
     const LogoutButton = useMemo(()=>{
@@ -43,7 +50,7 @@ export default()=>{
 
         return <>
             <li className="nav-item">
-                <a className="nav-link" href="#" onClick={()=>ApiTokenReset(navigation)}>Logout</a>
+                <Link className="nav-link" to={"/logout"}>Logout</Link>
             </li>
         </>
     }, [isLogin()]);
@@ -76,8 +83,8 @@ export default()=>{
 
                 {/* The content of navbar that will be responsive */}
                 <div className="collapse navbar-collapse" id="navLinks">
-                    <form className="d-flex me-auto mt-lg-0 mb-lg-0 mt-4 mb-3" role="search">
-                        <input className="form-control me-2" type="search" placeholder={RandSearchPlaceholder} aria-label="Search" />
+                    <form className="d-flex me-auto mt-lg-0 mb-lg-0 mt-4 mb-3" role="search" onSubmit={updateSearch}>
+                        <input className="form-control me-2" type="search" placeholder={RandSearchPlaceholder} aria-label="Search" value={v_search} onInput={(e)=>e_search(e.target.value)}/>
                         <button className="btn btn-primary d-flex" type="submit"><Icon name="search" inClass={" my-fill-light"} outClass={"my-w-5 my-h-5"} /></button>
                     </form>
                     

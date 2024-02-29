@@ -203,6 +203,7 @@ const AddInstance = (option)=>{
                     formData.append("description", InstCast.v_data.description);
                     formData.append("categoryPathId", JSON.stringify(d.data) );
                     d2 = await ApiUploadImageData( formData ); //Upload Image first   
+                    console.log(d2);
                 }
                 
                 if(d2.status != '200'){

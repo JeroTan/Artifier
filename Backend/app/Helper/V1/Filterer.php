@@ -57,7 +57,8 @@ class Filterer{
                 continue;
             }
 
-            $data = explode(",", $data);
+
+            $data = explode(",", $data["between"]);
 
             if(count($data) != 2){
                 continue;
