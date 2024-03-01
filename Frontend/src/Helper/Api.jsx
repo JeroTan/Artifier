@@ -2,11 +2,12 @@ import axios from 'axios';
 import { useContext } from 'react';
 import { Gbl_Modal } from '../Modal';
 
+const domain = "localhost:8000";
+const protocol = "http://"
+
 export function ApiLink(Additionals = "", withApiLink = true){
-    const domain = "localhost:8000";
     const apiField = "/api/v1/";
-    const protocol = "http";
-    const site = protocol+"://"+domain+(withApiLink?apiField:"")+Additionals;
+    const site = protocol+domain+(withApiLink?apiField:"")+Additionals;
     return site;
 }
 
@@ -152,3 +153,11 @@ export async function ApiUpdateInfo(val){
     return await ApiRequestPlate('patch', 'user/x', val);
 }
 ///<<< User
+
+
+//<<<< FETCH PUBLIC
+export function GetPublicAsset(data){
+    return protocol+domain+"/storage/frontend/"+data;
+}
+
+//<<< FETCH PUBLIC

@@ -3,12 +3,14 @@ import { Link, useNavigate } from "react-router-dom";
 import { useMemo, useContext, useCallback, useState } from "react";
 
 //Components
-import logo from "../Images/logo.svg";
 import { randomizer } from "../Helper/Math";
 import Icon from "./Icon";
 import { Gbl_Settings } from "../GlobalSettings";
 import { isLogin } from "../Helper/Validation";
-import { ApiTokenReset } from "../Helper/Api";
+import { ApiTokenReset, GetPublicAsset } from "../Helper/Api";
+
+//Asset
+const logo = "logo.svg";
 
 
 export default()=>{
@@ -72,7 +74,7 @@ export default()=>{
 
 
                 <Link className="navbar-brand" to="/">
-                    <img src={logo} alt="Logo" width="30" height="30" className="d-inline-block align-text-top me-2" />
+                    <img src={GetPublicAsset(logo)} alt="Logo" width="30" height="30" className="d-inline-block align-text-top me-2" />
                     <span>Artifier</span>
                 </Link>
 

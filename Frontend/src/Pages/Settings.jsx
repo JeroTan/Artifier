@@ -1,11 +1,14 @@
 import { useCallback, useContext, useEffect, useMemo, useReducer, useRef, useState } from "react";
 import { Gbl_Settings } from "../GlobalSettings";
 import Pageplate from "../Utilities/Pageplate"
-import { ApiGetYourInfo, ApiUpdateInfo } from "../Helper/Api";
+import { ApiGetYourInfo, ApiUpdateInfo, GetPublicAsset } from "../Helper/Api";
 import Icon from "../Utilities/Icon";
 import { TextLoading } from "../Helper/Placholder";
-import lightPreview from "../Images/profileSample_light.jpg";
-import darkPreview from "../Images/profileSample_dark.jpg";
+
+//Asset
+
+const lightPreview = "profileSample_light.jpg";
+const darkPreview = "profileSample_dark.jpg";
 
 export default ()=>{
     //Global
@@ -85,8 +88,8 @@ export default ()=>{
     const passwordRef = useRef();
     const previewImgSrc = useMemo(()=>{
         if(Theme == "dark")
-            return darkPreview;
-        return lightPreview;
+            return GetPublicAsset(darkPreview);
+        return GetPublicAsset(lightPreview);
     }, [Theme]);
     
     //Functions
