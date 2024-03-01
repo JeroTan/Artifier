@@ -1,6 +1,7 @@
 <?php
 namespace App\Helper\V1;
 
+use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 
 class FFQuery{ //Fast Filter Query - Use to do all filtering and queriying
@@ -101,6 +102,11 @@ class FFQuery{ //Fast Filter Query - Use to do all filtering and queriying
         return $this;
     }
 
+    public function custom($callback){//Be sure that the return value is a Query
+        $this->Query = $callback($this->Query);
+        return $this;
+    }
+
     public function auth(){
         if(!$this->isInitialize())
             return $this;
@@ -110,10 +116,19 @@ class FFQuery{ //Fast Filter Query - Use to do all filtering and queriying
         return $this;
     }
 
-    public function doAll($auth = false){
+    public function doAll($auth = false, $custom = false){
         $returner = $this;
         if($auth){
             $returner = $returner->auth();
+        }
+        if($custom){
+            if(is_array($custom)){
+                foreach($custom as $callback){
+                    $returner =$returner->custom($callback);
+                }
+            }else{
+                $returner = $returner->custom($custom);
+            }
         }
         $returner->search()->filter()->between()->match()->relation()->sort();
         return $returner;
@@ -131,4 +146,5 @@ class FFQuery{ //Fast Filter Query - Use to do all filtering and queriying
             return true;
         return false;
     }
+
 }

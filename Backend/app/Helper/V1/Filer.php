@@ -10,8 +10,7 @@ class Filer{
     protected $path = "";
     protected $newFilename = "";
 
-    public function __construct($id = "", $name = "", $file = null, $path = '')
-    {
+    public function __construct($id = "", $name = "", $file = null, $path = ''){
         $this->id = $id;
         $this->name = $name;
         $this->file = $file;

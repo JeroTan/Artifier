@@ -137,7 +137,7 @@ function EditDescription(option){
                     refState.e_title = undefined;
             break;
             case "updateDescription":
-                refState.description = action.val;
+                refState.description = action.val.split("\n");
                 if(refState.e_description)
                     refState.e_description = undefined;
             break;
@@ -230,7 +230,6 @@ function EditDescription(option){
                     imageId: ImageId,
                 }
                 d2 = await ApiUpdateImageData( data, ImageId ); //Upload Image first  
-                console.log(d2);
             }
             if(d2){
                 fetchDataAgain();
@@ -267,8 +266,7 @@ function EditDescription(option){
             <div className="mb-3">
                 <label htmlFor="v_description" className="form-label">Description</label>
                 <textarea ref={descriptionRef} className="form-control" id="v_description" rows="3" placeholder="Lorem ipsum dolor sit amet consectetur . . ." onInput={(e)=>{
-                    const SplitPar = e.target.value.split('\n');
-                    InstUpcast({run:"updateDescription", val:SplitPar});
+                    InstUpcast({run:"updateDescription", val:e.target.value});
                 }} ></textarea>
                 <small className="text-danger text-center">{InstCast.e_description}</small>
             </div>
@@ -374,6 +372,7 @@ function CategoryPathAddInstance(option){
                 if(e.key === 'Enter' && e.target.value != ""){ //Append new path name once user hits enter
                     CatUpcast({run:'appendPath', val:e.target.value});
                     ThisTextBox.current.value = '';
+                    e_queries([]);
                 }else if( (e.key === 'Backspace' ||  e.key === "Delete") && e.target.value == "" ){
                     CatUpcast({run:'popPath'});
                 }

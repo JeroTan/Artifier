@@ -151,6 +151,18 @@ class Filterer{
         return $transformedFilter;
     }
 
+    public function transCustomArray(Request $request, $columnToCheck){
+        $transformedFilter = [];
+        $data = $request->query($columnToCheck);
+        if(!$data)
+            return $transformedFilter;
+
+        $data = explode(",", $data);
+        $transformedFilter = $data;
+
+        return $transformedFilter;
+    }
+
     protected function queryChecker(Request $request, $column, $parameter){
         $data = $request->query($column);
         if(!$data){

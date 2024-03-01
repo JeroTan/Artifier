@@ -51,7 +51,7 @@ const galleryChanger = (state, action)=>{
     function makeQueryFilter(){
         let query = [];
         if(refState.f_category.length > 0){
-            query.push("category_path_id="+refState.f_category.join(","));
+            query.push("category_id="+refState.f_category.join(","));
         }
         
         if(refState.f_upload.length > 0){
@@ -276,7 +276,7 @@ function Filters(){
         
         return <>
         <div className="container">
-            <div className="row">
+            <div className="row gx-5 gy-3">
             {v_category.map((x, i)=>{
                 return <div key={x.id} className="form-check col">
                     <input className="form-check-input" type="checkbox" id={`categoryCheck${i}`} checked={x.checked} onChange={()=>checkCategory(x.id)} />
@@ -298,7 +298,7 @@ function Filters(){
         </div>
         <div>
             <h4>Upload Date:</h4>
-            <div className="d-flex gap-2">
+            <div className="d-flex flex-wrap gap-2">
                 <div className="form-floating">
                     <input value={v_upload.start} type="datetime-local" className="form-control" id="uploadFrom" 
                         onInput={(e)=>e_upload(prev=>{
@@ -323,7 +323,7 @@ function Filters(){
         </div>
         <div>
             <h4>Modified Date:</h4>
-            <div className="d-flex gap-2">
+            <div className="d-flex flex-wrap gap-2">
                 <div className="form-floating">
                     <input value={v_modified.start} type="datetime-local" className="form-control" id="modifiedFrom" 
                         onInput={(e)=>e_modified(prev=>{
@@ -420,7 +420,7 @@ function ImageListContainerAlternate(option){
     <section className="mb-5">
         {/** Image Container */}
         <div className="d-flex flex-wrap justify-content-center gap-3 mt-4">
-            { v_imageList === false || v_fetching ? [...Array(v_lastImageListCount)].map((x,i)=><CardLoading key={i} />) : 
+            { v_imageList === false ? <></> : 
                 ( v_imageList.length <= 0 ? <>
                     <div className="w-100">
                         <BlockNoData title="Nothing To See Here Yet" message="Maybe add more images in this category." />    
@@ -429,6 +429,7 @@ function ImageListContainerAlternate(option){
                     return <ImageCardContainer key={x.id} data={x} />
                 }) )
             }
+            { v_fetching ? [...Array(v_lastImageListCount)].map((x,i)=><CardLoading key={i} />) : <></>}
                 {/** For Mainting Center Start */}
                 <div style={{width: "18rem"}}></div>
                 <div style={{width: "18rem"}}></div>
@@ -489,7 +490,6 @@ function ImageListContainer(option){
         if(imgCast.selectedFlatList.length > 0)
             query = query+"category_path_id="+imgCast.selectedFlatList.join(',')+Sorter;
         
-        
         if(!v_fetching){
             e_fetching(true);
             ApiGetImage(query).then((d)=>{
@@ -520,7 +520,6 @@ function ImageListContainer(option){
                 sessionStorage.setItem('cachedImage_'+Id, JSON.stringify(cachedImage));
                 s_loadMore(d.data.meta.next_cursor);
                 e_fetching(false);
-                console.group(cachedImage);
             });
         }
         
@@ -541,7 +540,7 @@ function ImageListContainer(option){
         </div>
         {/** Image Container */}
         <div className="d-flex flex-wrap justify-content-center gap-3 mt-4">
-            { v_imageList === false || v_fetching ? [...Array(v_lastImageListCount)].map((x,i)=><CardLoading key={i} />) : 
+            { v_imageList === false ? <></> : 
                 ( v_imageList.length <= 0 ? <>
                     <div className="w-100">
                         <BlockNoData title="Nothing To See Here Yet" message="Maybe add more images in this category." />    
@@ -550,6 +549,7 @@ function ImageListContainer(option){
                     return <ImageCardContainer key={x.id} data={x} />
                 }) )
             }
+            { v_fetching ? [...Array(v_lastImageListCount)].map((x,i)=><CardLoading key={i} />) : <></>}
             {/** For Mainting Center Start */}
             <div style={{width: "18rem"}}></div>
             <div style={{width: "18rem"}}></div>
@@ -598,17 +598,19 @@ function CategoryContainer(option){
         <div className="d-flex">
             <span className="fw-lighter h3 p-0 m-0">\</span>
         </div>
-        <div className="btn-group-vertical" role="group" aria-label="CategoryTree Buttons">
-            {  c_spreadTree ? (
-                Categories.map((x, i)=>{
-                    return <Fragment key={x.id}>
-                        {ButtonComp(x.category, x)}
-                    </Fragment>
-                })
-            ) : (
-                c_selectedIndex == -1 ? ButtonComp(Categories[0].category, Categories[0]) 
-                : ButtonComp(Categories[c_selectedIndex].category, Categories[c_selectedIndex]) 
-            )}
+        <div className="">
+            <div className="btn-group-vertical" role="group" aria-label="CategoryTree Buttons">
+                {  c_spreadTree ? (
+                    Categories.map((x, i)=>{
+                        return <Fragment key={x.id}>
+                            {ButtonComp(x.category, x)}
+                        </Fragment>
+                    })
+                ) : (
+                    c_selectedIndex == -1 ? ButtonComp(Categories[0].category, Categories[0]) 
+                    : ButtonComp(Categories[c_selectedIndex].category, Categories[c_selectedIndex]) 
+                )}
+            </div>
         </div>
         { c_selectedIndex == -1 ? "" : <>
             { !Categories[c_selectedIndex]?.child ? "" :<>

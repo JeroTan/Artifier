@@ -10,7 +10,6 @@ export default ()=>{
 
     useEffect(()=>{
         let delaytion = setInterval(()=>{
-            console.log("here");
             if(!localStorage.getItem('token')){
                 navigation('/login');
                 clearInterval(delaytion);

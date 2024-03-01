@@ -43,18 +43,32 @@ class OwnCategory{
         return $allCategory;
     }
 
-    public function getPath($category_path){
+    public function getPath($category_path){//get the path but allowed without tree;
         $categoryPathTree = $this->pathingCategory($category_path, false);
         return $categoryPathTree;
     }
 
-    public function getPathTree($category_path){
+    public function getPathTree($category_path){//get path but parents must be solo
 
         $categoryPathTree = $this->pathingCategory($category_path);
         return $categoryPathTree;
     }
 
-    protected function pathingCategory($data, $makeSoloParent = true){
+    public function getPathFlat($category_path){
+        $categoryPathTree = $this->pathingCategory($category_path);
+
+        $categoryPathTree = OwnCategory::flatten($categoryPathTree);
+
+        return $categoryPathTree;
+    }
+    public function getPathFlatReverse($category_path){
+        $categoryPathTree = $this->pathingCategory($category_path, true, true);
+
+        $categoryPathTree = OwnCategory::flatten($categoryPathTree);
+        return $categoryPathTree;
+    }
+
+    protected function pathingCategory($data, $makeSoloParent = true, $reverse = false){
         $allPath = CategoryPath::with('category')->get()->toArray();
 
 
@@ -81,6 +95,19 @@ class OwnCategory{
             return $tree;
         }
 
+        function ReversePathing($categoryData, $allPath){
+            $array = [];
+            foreach($categoryData as $key => $val){
+                $parent = $val["id"];
+                $dataChild = OwnCategory::murasaki3($parent, $allPath);
+                if($dataChild){
+                    $val["child"] = ReversePathing($dataChild, $allPath);
+                }
+                $array[count($array)] = $val;
+            }
+            return $array;
+        }
+
         $getParents =[];
         foreach($data as $val){
             if($val["category_path_id"] !== null)
@@ -88,6 +115,11 @@ class OwnCategory{
             else
                 $getParents[] = $val;
         }
+
+        if($reverse){
+            $getParents = ReversePathing($data, $allPath);
+        }
+
 
         //Make Them Solo Parent if Possible
         //make a recursive function that will accept arguments such as solo nad getparents
@@ -209,5 +241,48 @@ class OwnCategory{
         }
     }
 
+    public static function murasaki3($blue, $red){//return the categorypaths(array) of match parentid from argument id; BLUE means the id of categoryPath
+        if(count($red) == 1){
+            if($red[0]["category_path_id"] === $blue)
+                return [$red[0]];
+            else return [];
+        }
+
+
+        $lengthOfArray = count($red);
+        $leftHalf = floor($lengthOfArray/2);
+        $rightHalf =  $lengthOfArray - $leftHalf;
+        $leftArray = array_slice($red, 0, $leftHalf);
+        $rightArray = array_slice($red, $leftHalf, $rightHalf);
+        $leftSide = OwnCategory::murasaki3($blue, $leftArray);
+        $rightSide = OwnCategory::murasaki3($blue, $rightArray);
+
+        $arrayReturn = [];
+        if(count($leftSide)){
+            $arrayReturn = array_merge($arrayReturn, $leftSide);
+        }
+        if(count($rightSide)){
+            $arrayReturn = array_merge($arrayReturn, $rightSide);
+        }
+        return $arrayReturn;
+    }
+
+    public static function flatten($initial){
+        $flat = [];
+            foreach($initial as $key => $val){
+                $flat[count($flat)] = [
+                    "id"=>$val["id"],
+                    "category_id"=>$val["category_id"],
+                    "category"=>$val["category"],
+                ];
+
+                if( isset($val["child"]) ){
+                    $newData = OwnCategory::flatten($val["child"]);
+                    $flat = array_merge($flat, $newData);
+                }
+            }
+
+            return $flat;
+    }
 
 };

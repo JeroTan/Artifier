@@ -62,7 +62,6 @@ export function popSignupError(Upcast){
 }
 
 export function popImage(Upcast, link){
-    console.log(link);
     Upcast({run:'setAll', val:{
         isOpen: true,
         type: 'imageDisplay',

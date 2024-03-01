@@ -122,7 +122,6 @@ export default ()=>{
                     });
                 }
             }
-            console.log(d);
         });
     }, [ThisCast.username, ThisCast.password]);
     const changePassword = useCallback(()=>{
@@ -145,7 +144,6 @@ export default ()=>{
                     });
                 }
             }
-            console.log(d);
         });
     }, [ThisCast.password, ThisCast.newPassword, ThisCast.confirmPassword]);
 

@@ -36,10 +36,30 @@ class ImageCtrl extends Controller
         //-->Filterers
         $opt = new FilterImage;
         $ffq = new FFQuery;
-        $data = $ffq->init($opt, $data, $request)->doAll(true)->getQuery();
+            //If Ever There is  a Category Id
+            $category_id = $opt->transCustomArray($request, "category_id");
+        $data = $ffq->init($opt, $data, $request);
+
+        if($category_id && count($category_id)){
+            $categoryPathId = CategoryPath::with("category")->whereIn("category_id", $category_id)->get()->toArray();
+            $getTree = new OwnCategory;
+            $categoryPathId = $getTree->getPathFlatReverse($categoryPathId);
+            $categoryPathId = array_map(function($val){
+                return $val["id"];
+            }, $categoryPathId);
+
+            $imageId = ImageCategoryPaths::select("image_id as id")->whereIn("category_path_id", $categoryPathId);
+            $data = $data->doAll(true, function($query)use($imageId){
+                return $query->whereIn("id", $imageId);
+            });
+        }else{
+           $data = $data->doAll(true);
+        }
+
+        $data = $data->getQuery();
         //<--Filterers
 
-        $data = $data->cursorPaginate(15);
+        $data = $data->cursorPaginate(5);
 
         return ImageRes::collection($data);
     }

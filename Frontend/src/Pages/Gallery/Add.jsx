@@ -203,7 +203,6 @@ const AddInstance = (option)=>{
                     formData.append("description", InstCast.v_data.description);
                     formData.append("categoryPathId", JSON.stringify(d.data) );
                     d2 = await ApiUploadImageData( formData ); //Upload Image first   
-                    console.log(d2);
                 }
                 
                 if(d2.status != '200'){
@@ -442,6 +441,7 @@ function CategoryPathAddInstance(option){
             onKeyDown={(e)=>{
                 if(e.key === 'Enter' && e.target.value != ""){ //Append new path name once user hits enter
                     CatUpcast({run:'appendPath', val:e.target.value});
+                    e_queries([]);
                     ThisTextBox.current.value = '';
                 }else if( (e.key === 'Backspace' ||  e.key === "Delete") && e.target.value == "" ){
                     CatUpcast({run:'popPath'});

@@ -37,7 +37,7 @@ class ImageUpdReq extends FormRequest
     {
         $this->merge([
             'categoryPathId'=>$this->input('categoryPathId') === null ? [] : json_decode($this->input('categoryPathId', true)),
-            'description'=>$this->input('description') === null ? [] : $this->input('description'),
+            'description'=> $this->input('description') === null ? [] : $this->input('description'),
         ]);
     }
 

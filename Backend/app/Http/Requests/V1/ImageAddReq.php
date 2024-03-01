@@ -27,7 +27,7 @@ class ImageAddReq extends FormRequest
             'title'=>'required|max:256',
             'description'=>'array',
             'description.*'=>'nullable|string',
-            'image'=>'required|image|max:10000',
+            'image'=>'required|image|max:20000',
             'categoryPathId'=>"required|array|min:1",
             "categoryPathId.*"=>"required|exists:category_path,id",
         ];
