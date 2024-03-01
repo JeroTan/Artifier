@@ -10,6 +10,7 @@ const gatepolice = {
         const token = localStorage.getItem('token');
         if(!token){
             redirect('/login');
+            helper.navigation('/login');
             return false;
         }
         return true;
@@ -18,6 +19,7 @@ const gatepolice = {
         const token = localStorage.getItem('token');
         if(token){
             redirect('/');
+            helper.navigation('/');
             return false;
         }
         return true;
@@ -28,6 +30,7 @@ export default (option)=>{
     const Content = option.children;
     const Rule = option.type;
     const [c_verifying, s_verifying] = useState(true);
+    const [c_error, s_error] = useState(true);
 
     //This will be use inside a rule component
     const helper = {
@@ -37,13 +40,17 @@ export default (option)=>{
     //This will be the one who manage the rotation of rules
     useEffect(()=>{
         if( typeof Rule === "array"){
-            Rule.every(x=> gatepolice[x](helper))
+            if(Rule.every(x=> gatepolice[x](helper))){
+                s_error(false);
+            }
         }else{
-            gatepolice[Rule](helper)
+            if(gatepolice[Rule](helper)){
+                s_error(false);
+            }
         }
             
         s_verifying(false);
-    }, [s_verifying]);
+    }, [s_error, s_verifying]);
 
     return <>
         { c_verifying ? <PageLoader /> : Content }
