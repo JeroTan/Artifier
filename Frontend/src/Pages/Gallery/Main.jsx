@@ -2,7 +2,7 @@ import { Gbl_Settings } from "../../GlobalSettings";
 import { Suspense, createContext, useCallback, useContext, useState, useEffect, useMemo, useReducer, Fragment } from "react";
 import { useNavigate } from "react-router-dom";
 import Icon from "../../Utilities/Icon";
-import { BlockNoData, CardLoading, InlineLoading } from "../../Helper/Placholder";
+import { BlockNoData, CardLoading, InlineLoading, TextLoading } from "../../Helper/Placholder";
 import { ApiGetCategory, ApiGetCategoryPathTree, ApiGetImage, ApiImageLink, ApiImageThumbLink } from "../../Helper/Api";
 import { compareStrings, getCatPathFlat } from "../../Helper/RyouikiTenkai";
 import { transformDate } from "../../Helper/Math";
@@ -18,6 +18,7 @@ const galleryGlobal = {
     
     categoryList: [],
     categoryTree: false,
+    categoryTreeQueue: 0,
     
     sortArrayData: { "title":"ASC" },
     sortQueryData: "title[sort]=ASC",
@@ -84,6 +85,10 @@ const galleryChanger = (state, action)=>{
         break;
         case 'addCatTree':
             refState.categoryTree = action.val;
+            refState.categoryTreeQueue = 0;
+        break;
+        case 'loadNextCategoryPath':
+            refState.categoryTreeQueue+=1;
         break;
         case 'toggleTitleSort':
             reOrderSort("title");
@@ -154,13 +159,21 @@ export function Gallery(){
         <main className="">
             {thisCast.filterQuery === undefined ? <>
                 {thisCast.categoryTree === false ? <InlineLoading rows={6} /> : (
-                    thisCast.categoryTree.length <= 0 ? <> <BlockNoData /> </> : (
-                        thisCast.categoryTree.map( x=>{
-
+                    thisCast.categoryTree.length <= 0 ? <> <BlockNoData /> </> : <>
+                        {thisCast.categoryTree.map( (x,i)=>{
                             ///Make a loader for this one so that it will load the image one by one
-                            return <ImageListContainer key={x.id} id={x.id} categories={x} sorter={thisCast.sortQueryData} />
-                        })
-                    )
+                            return ( i <= thisCast.categoryTreeQueue ? <ImageListContainer 
+                                key={x.id} 
+                                id={x.id} 
+                                categories={x} 
+                                sorter={thisCast.sortQueryData} 
+                                nextCategory={ ()=>thisUpcast({run:"loadNextCategoryPath"}) } 
+                            /> : "")
+                        })}
+                        {thisCast.categoryTree.length > thisCast.categoryTreeQueue ? <>
+                            <TextLoading subtitle="Fetching Resources. . ." />
+                        </> : ""}
+                    </>
                 )}   
             </> : <>
                 <ImageListContainerAlternate filterQuery={thisCast.filterQuery} sorter={thisCast.sortQueryData} />
@@ -372,82 +385,6 @@ function Sorters(){
     </>
 }
 
-
-//Use To list Image alternatively when there is a fitler used
-function ImageListContainerAlternate(option){
-    //Above Data
-    const FilterQuery = (option.filterQuery?? false) ? "&"+option.filterQuery : "" ;
-    const Sorter = (option.sorter ?? false) ? "&"+option.sorter : "";
-
-    const [ v_imageList, e_imageList ] = useState(false); //Data of Images
-    const [ v_fetching, e_fetching ] = useState(false); //Use as state to show a loading thing if image is fetching
-    const [ v_lastImageListCount, e_lastImageListCount ] = useState(1); //Use to make a placeholder of image list base on the last image list
-    const [ c_loadMore, s_loadMore ]= useState(null); //Use to Identify if there still image left to load;
-
-    //Fetch the Image Hear
-    useEffect(()=>{
-        const query = "?"+FilterQuery+Sorter;
-        
-        if(!v_fetching){
-            e_fetching(true);
-            ApiGetImage(query).then((d)=>{
-                e_imageList(d.data.data);
-                e_lastImageListCount(d.data.data.length > 0 ? d.data.data.length : 1);
-                e_fetching(false);
-                sessionStorage.setItem('cachedImage_filtered', JSON.stringify(d.data.data));
-                s_loadMore(d.data.meta.next_cursor);
-            })
-        }
-    }, [ FilterQuery, Sorter]);
-
-    const fetchMore = useCallback(()=>{
-        const query = "?"+FilterQuery+Sorter+"&cursor="+c_loadMore;
-        if(!v_fetching){
-            e_fetching(true);
-            ApiGetImage(query).then((d)=>{
-                let cachedImage = sessionStorage.getItem('cachedImage_filtered');
-                cachedImage = JSON.parse(cachedImage);
-                cachedImage = [...cachedImage, ...d.data.data];
-                e_imageList(cachedImage);
-                e_lastImageListCount(cachedImage.length>0 ? cachedImage.length : 1);
-                sessionStorage.setItem('cachedImage_filtered', JSON.stringify(cachedImage));
-                s_loadMore(d.data.meta.next_cursor);
-                e_fetching(false);
-            });
-        }
-        
-    }, [ FilterQuery, Sorter, c_loadMore, v_fetching ]);
-
-    return <>
-    <section className="mb-5">
-        {/** Image Container */}
-        <div className="d-flex flex-wrap justify-content-center gap-3 mt-4">
-            { v_imageList === false ? <></> : 
-                ( v_imageList.length <= 0 ? <>
-                    <div className="w-100">
-                        <BlockNoData title="Nothing To See Here Yet" message="Maybe add more images in this category." />    
-                    </div>
-                </> : v_imageList.map((x)=>{
-                    return <ImageCardContainer key={x.id} data={x} />
-                }) )
-            }
-            { v_fetching ? [...Array(v_lastImageListCount)].map((x,i)=><CardLoading key={i} />) : <></>}
-                {/** For Mainting Center Start */}
-                <div style={{width: "18rem"}}></div>
-                <div style={{width: "18rem"}}></div>
-                <div style={{width: "18rem"}}></div>
-                <div style={{width: "18rem"}}></div>
-                <div style={{width: "18rem"}}></div>
-        </div>
-        <div className="d-flex justify-content-center">
-            {c_loadMore === null ?<></>:<>
-                <button className="btn btn-outline-primary" onClick={fetchMore}>Load More</button>
-            </>}
-        </div>
-    </section>
-    </>
-}
-
 ///Use to List Images with the image cards and category path list itself
 function ImageListContainer(option){
     //Above Value
@@ -455,6 +392,7 @@ function ImageListContainer(option){
     const CategoryChild = option.categories.child ?? false;
     const Id = option.id;
     const Sorter = "&"+(option.sorter ?? "");
+    const NextCategory = option.nextCategory;
     
     //To Reduce
     const [imgCast, imgUpcast] = useReducer((state, action)=>{//Global data that will be you to select what category is selected
@@ -497,13 +435,12 @@ function ImageListContainer(option){
             ApiGetImage(query).then((d)=>{
                 sessionStorage.setItem('cachedImage_'+Id, JSON.stringify(d.data.data));
                 e_imageList(d.data.data);
-                e_lastImageListCount(d.data.data.length > 0 ? d.data.data.length : 1);
+                e_lastImageListCount(d.data.data.length > 0 ? d.data.data.length%3 : 1);
                 s_loadMore(d.data.meta.next_cursor);
                 e_fetching(false);
+                NextCategory();//This is only available at initial load of this container
             });
         }
-        
-        
     }, [imgCast.selectedFlatList, Sorter]);
 
     const fetchMore = useCallback(()=>{
@@ -518,7 +455,7 @@ function ImageListContainer(option){
                 cachedImage = JSON.parse(cachedImage);
                 cachedImage = [...cachedImage, ...d.data.data];
                 e_imageList(cachedImage);
-                e_lastImageListCount(cachedImage.length>0 ? cachedImage.length : 1);
+                e_lastImageListCount(cachedImage.length>0 ? cachedImage.length%3 : 1);
                 sessionStorage.setItem('cachedImage_'+Id, JSON.stringify(cachedImage));
                 s_loadMore(d.data.meta.next_cursor);
                 e_fetching(false);
@@ -566,6 +503,81 @@ function ImageListContainer(option){
         </div>
     </section>
     </> 
+}
+
+//Use To list Image alternatively when there is a fitler used
+function ImageListContainerAlternate(option){
+    //Above Data
+    const FilterQuery = (option.filterQuery?? false) ? "&"+option.filterQuery : "" ;
+    const Sorter = (option.sorter ?? false) ? "&"+option.sorter : "";
+
+    const [ v_imageList, e_imageList ] = useState(false); //Data of Images
+    const [ v_fetching, e_fetching ] = useState(false); //Use as state to show a loading thing if image is fetching
+    const [ v_lastImageListCount, e_lastImageListCount ] = useState(1); //Use to make a placeholder of image list base on the last image list
+    const [ c_loadMore, s_loadMore ]= useState(null); //Use to Identify if there still image left to load;
+
+    //Fetch the Image Hear
+    useEffect(()=>{
+        const query = "?"+FilterQuery+Sorter;
+        
+        if(!v_fetching){
+            e_fetching(true);
+            ApiGetImage(query).then((d)=>{
+                e_imageList(d.data.data);
+                e_lastImageListCount(d.data.data.length > 0 ? d.data.data.length%3 : 1);
+                e_fetching(false);
+                sessionStorage.setItem('cachedImage_filtered', JSON.stringify(d.data.data));
+                s_loadMore(d.data.meta.next_cursor);
+            })
+        }
+    }, [ FilterQuery, Sorter]);
+
+    const fetchMore = useCallback(()=>{
+        const query = "?"+FilterQuery+Sorter+"&cursor="+c_loadMore;
+        if(!v_fetching){
+            e_fetching(true);
+            ApiGetImage(query).then((d)=>{
+                let cachedImage = sessionStorage.getItem('cachedImage_filtered');
+                cachedImage = JSON.parse(cachedImage);
+                cachedImage = [...cachedImage, ...d.data.data];
+                e_imageList(cachedImage);
+                e_lastImageListCount(cachedImage.length>0 ? cachedImage.length%3 : 1);
+                sessionStorage.setItem('cachedImage_filtered', JSON.stringify(cachedImage));
+                s_loadMore(d.data.meta.next_cursor);
+                e_fetching(false);
+            });
+        }
+        
+    }, [ FilterQuery, Sorter, c_loadMore, v_fetching ]);
+
+    return <>
+    <section className="mb-5">
+        {/** Image Container */}
+        <div className="d-flex flex-wrap justify-content-center gap-3 mt-4">
+            { v_imageList === false ? <></> : 
+                ( v_imageList.length <= 0 ? <>
+                    <div className="w-100">
+                        <BlockNoData title="Nothing To See Here Yet" message="Maybe add more images in this category." />    
+                    </div>
+                </> : v_imageList.map((x)=>{
+                    return <ImageCardContainer key={x.id} data={x} />
+                }) )
+            }
+            { v_fetching ? [...Array(v_lastImageListCount)].map((x,i)=><CardLoading key={i} />) : <></>}
+                {/** For Mainting Center Start */}
+                <div style={{width: "18rem"}}></div>
+                <div style={{width: "18rem"}}></div>
+                <div style={{width: "18rem"}}></div>
+                <div style={{width: "18rem"}}></div>
+                <div style={{width: "18rem"}}></div>
+        </div>
+        <div className="d-flex justify-content-center">
+            {c_loadMore === null ?<></>:<>
+                <button className="btn btn-outline-primary" onClick={fetchMore}>Load More</button>
+            </>}
+        </div>
+    </section>
+    </>
 }
 
 //This will hold a recursive function to iterate the its neighboring tree of category buttons
