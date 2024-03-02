@@ -85,7 +85,14 @@ class ImageCtrl extends Controller
         $image->save();
 
         $filer = new Filer;
-        $image->image = $filer->id($image->id)->name($image->title)->file($request->image)->path("gallery/")->uploadFile(true);
+        $filer = $filer
+            ->id($image->id)
+            ->name($image->title)
+            ->file($request->image)
+            ->path("gallery/")
+            ->uploadFile()
+            ->createThumbImage();
+        $image->image = $filer->getNewName();
         $image->save();
 
         // $image->refresh();
@@ -162,7 +169,7 @@ class ImageCtrl extends Controller
         $image = Image::where('id', $id)->where('user_id', Auth::user()->id)->first();
         $image->categoryPath()->detach();
         $filer = new Filer;
-        $filer->name($image->image)->path('gallery/')->deleteFile();
+        $filer->name($image->image)->path('gallery/')->deleteFile(true)->deleteThumb();
         $image->delete();
 
         return response()->json("Image is deleted successfully", 200);

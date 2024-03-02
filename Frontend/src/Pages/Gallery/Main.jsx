@@ -3,7 +3,7 @@ import { Suspense, createContext, useCallback, useContext, useState, useEffect, 
 import { useNavigate } from "react-router-dom";
 import Icon from "../../Utilities/Icon";
 import { BlockNoData, CardLoading, InlineLoading } from "../../Helper/Placholder";
-import { ApiGetCategory, ApiGetCategoryPathTree, ApiGetImage, ApiImageLink } from "../../Helper/Api";
+import { ApiGetCategory, ApiGetCategoryPathTree, ApiGetImage, ApiImageLink, ApiImageThumbLink } from "../../Helper/Api";
 import { compareStrings, getCatPathFlat } from "../../Helper/RyouikiTenkai";
 import { transformDate } from "../../Helper/Math";
 
@@ -156,6 +156,8 @@ export function Gallery(){
                 {thisCast.categoryTree === false ? <InlineLoading rows={6} /> : (
                     thisCast.categoryTree.length <= 0 ? <> <BlockNoData /> </> : (
                         thisCast.categoryTree.map( x=>{
+
+                            ///Make a loader for this one so that it will load the image one by one
                             return <ImageListContainer key={x.id} id={x.id} categories={x} sorter={thisCast.sortQueryData} />
                         })
                     )
@@ -652,11 +654,10 @@ function ImageCardContainer(option){
         </>
     }, [thisCast.listView, Title]);
 
-
     return <div className="card overflow-hidden" aria-hidden="true" style={cardStyle}>
         <div className={`position-relative ${insideContainer} w-100 h-100`}>
             <div className={`position-relative ${imageClass1} overflow-hidden my-pointer`}  style={{aspectRatio: "1/1"}} onClick={()=>navigation(`view_image/${Id}`)} >
-                <img src={ApiImageLink(Image)} className="w-100 h-100 position-relative  object-fit-cover bg-secondary" style={{objectPosition: "top center", minHeight: "200px"}} alt={`imageOf${Title}`}></img>
+                <img src={ApiImageThumbLink(Image)} className="w-100 h-100 position-relative object-fit-cover bg-secondary" style={{objectPosition: "top center", minHeight: "200px"}} alt={`imageOf${Title}`}></img>
             </div>
             
             <div className="p-2 ">

@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Api\V1\CategoryCtrl;
 use App\Http\Controllers\Api\V1\CategoryPathCtrl;
+use App\Http\Controllers\RunnerCtrl;
 use App\Models\Category;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
@@ -27,3 +28,9 @@ Route::get('/initial', function(){
 });
 
 Route::get('/testing', [CategoryPathCtrl::class, 'index']);
+
+Route::get('/runner');
+
+Route::prefix('/runner')->group(function(){
+    Route::get('/thumb', [RunnerCtrl::class, 'convertImage']);
+});

@@ -123,6 +123,10 @@ export function ApiImageLink(image, faction = "gallery/"){
     const routeSlash = "/storage/"+faction;
     return ApiLink(routeSlash+image, false);
 }
+export function ApiImageThumbLink(image, faction = "gallery/"){
+    const routeSlash = "/storage/"+faction+"thumb/";
+    return ApiLink(routeSlash+image, false);
+}
 
 ///<<< Image Query
 
