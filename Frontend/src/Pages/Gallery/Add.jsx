@@ -271,25 +271,32 @@ function ImageAddContainer(option){
     const [ InstCast, InstUpcast ] = useContext(Gbl_AddInstance);
     const UploadButtonRef = useRef();
 
+    //Upload Image 
+    const insertImage = useCallback((imageFile)=>{
+        if(imageFile){
+            const urlOfImageFile = URL.createObjectURL(imageFile);
+            InstUpcast({run:"addImage", val:imageFile})
+            InstUpcast({run:"openPreview", val:urlOfImageFile});
+        }else{
+            InstUpcast({run:"closeImage"})
+            InstUpcast({run:"closePreview"});
+        }
+        InstUpcast({run:'removeError', val:'image'});
+    }, [InstUpcast]);
+
 
     return <>
     <div className="d-flex bg-body-secondary justify-content-center">
         <input ref={UploadButtonRef} type="file" className="d-none" accept="image/*" onChange={(e)=>{
             const imageFile = e.target.files[0];
-            if(imageFile){
-                const urlOfImageFile = URL.createObjectURL(imageFile);
-                InstUpcast({run:"addImage", val:imageFile})
-                InstUpcast({run:"openPreview", val:urlOfImageFile});
-            }else{
-                InstUpcast({run:"closeImage"})
-                InstUpcast({run:"closePreview"});
-            }
-            InstUpcast({run:'removeError', val:'image'});
+            insertImage(imageFile);
         }}  />
         { InstCast.preview ? <>
-        <div className="position-relative d-flex overflow-hidden my-pointer" style={{minWidth: "25rem"}} onClick={()=>{
-            UploadButtonRef.current.click();
-        }} >
+        <div className="position-relative d-flex overflow-hidden my-pointer" style={{minWidth: "25rem"}} 
+            onClick={()=>{
+                UploadButtonRef.current.click();
+            }} 
+        >
             <div className="position-absolute w-100 h-100 d-flex justify-content-center align-items-center">
                 <div className="d-flex flex-column align-items-center">
                     <Icon name="upload" inClass="my-fill-primary" outClass="my-w-20 my-h-20" />
@@ -299,9 +306,22 @@ function ImageAddContainer(option){
             <img src={InstCast.preview} className="w-100 h-100 position-relative  object-fit-contain my-opacity-hover-50" alt={`previewImage`}></img>
         </div>
         </> : <>
-        <div className="position-relative d-flex overflow-hidden my-pointer my-opacity-hover-50" style={{minWidth: "25rem", aspectRatio:"5/4"}} onClick={()=>{
-            UploadButtonRef.current.click();
-        }} > 
+        <div className="position-relative d-flex overflow-hidden my-pointer my-opacity-hover-50" style={{minWidth: "25rem", aspectRatio:"5/4"}} 
+            onClick={()=>{
+                UploadButtonRef.current.click();
+            }} 
+            onDragOver={(e)=>{
+                e.preventDefault();
+            }}
+            onDrop={(e)=>{
+                e.preventDefault();
+                let file;
+                if( e?.dataTransfer?.files[0]?.type?.startsWith('image/') ){
+                    file  = e.dataTransfer.files[0];
+                }else return false;
+                insertImage(file);
+            }}
+        > 
             <div className="position-absolute w-100 h-100 d-flex justify-content-center align-items-center bg-body-tertiary ">
                 <div className="d-flex flex-column align-items-center">
                     <Icon name="upload" inClass="my-fill-primary" outClass="my-w-20 my-h-20" />
