@@ -1,6 +1,6 @@
 import { Gbl_Settings } from "../../GlobalSettings";
 import { Suspense, createContext, useCallback, useContext, useState, useEffect, useMemo, useReducer, Fragment } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import Icon from "../../Utilities/Icon";
 import { BlockNoData, CardLoading, InlineLoading, TextLoading } from "../../Helper/Placholder";
 import { ApiGetCategory, ApiGetCategoryPathTree, ApiGetImage, ApiImageLink, ApiImageThumbLink } from "../../Helper/Api";
@@ -665,8 +665,8 @@ function ImageCardContainer(option){
             <small className="mb-0 ">Uploaded: <span className="text-secondary">{transformDate(Uploaded)}</span> </small>
         </>
     }, [thisCast.listView, Title]);
-
-    return <div className="card overflow-hidden" aria-hidden="true" style={cardStyle}>
+    
+    return <Link className="card overflow-hidden" aria-hidden="true" style={cardStyle} to={`view_image/${Id}`}>
         <div className={`position-relative ${insideContainer} w-100 h-100`}>
             <div className={`position-relative ${imageClass1} overflow-hidden my-pointer`}  style={{aspectRatio: "1/1"}} onClick={()=>navigation(`view_image/${Id}`)} >
                 <img src={ApiImageThumbLink(Image)} className="w-100 h-100 position-relative object-fit-cover bg-secondary" style={{objectPosition: "top center", minHeight: "200px"}} alt={`imageOf${Title}`}></img>
@@ -676,5 +676,5 @@ function ImageCardContainer(option){
                 {content}
             </div>
         </div>
-    </div>
+    </Link>
 }
