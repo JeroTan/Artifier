@@ -666,7 +666,7 @@ function ImageCardContainer(option){
         </>
     }, [thisCast.listView, Title]);
     
-    return <Link className="card overflow-hidden" aria-hidden="true" style={cardStyle} to={`view_image/${Id}`}>
+    return <Link className="card overflow-hidden text-decoration-none" aria-hidden="true" style={cardStyle} to={`view_image/${Id}`}>
         <div className={`position-relative ${insideContainer} w-100 h-100`}>
             <div className={`position-relative ${imageClass1} overflow-hidden my-pointer`}  style={{aspectRatio: "1/1"}}  >
                 <img src={ApiImageThumbLink(Image)} className="w-100 h-100 position-relative object-fit-cover bg-secondary" style={{objectPosition: "top center", minHeight: "200px"}} alt={`imageOf${Title}`}></img>
